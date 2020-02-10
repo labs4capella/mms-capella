@@ -1,0 +1,11 @@
+These followings icons are made available under the terms of the Eclipse Public License v2.0
+which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v20.html
+
+<icon file path> - <original eclipse plug-in> - <original file path>
+
+/icons/add_participant.png - org.eclipse.team.ui - org.eclipse.team.ui/icons/full/eview16/synch_synch.png
+/icons/branch.png - org.eclipse.egit.ui - org.eclipse.egit.ui/icons/obj16/branch_obj.png
+/icons/edit.gif - org.eclipse.debug.ui - org.eclipse.debug.ui/icons/full/obj16/write_obj.gif
+/icons/mms_server.png - org.eclipse.egit.ui - org.eclipse.team.cvs.ui/icons/obj16/repository_rep.png
+/icons/project.gif - org.eclipse.debug.ui - org.eclipse.debug.ui/icons/full/obj16/prj_obj.gif
+/icons/refresh.gif - org.eclipse.pde.ui - org.eclipse.pde.ui/icons/elcl16/refresh.gif

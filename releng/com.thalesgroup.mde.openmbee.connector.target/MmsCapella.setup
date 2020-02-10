@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2020 Thales Global Services S.A.S.
+ 
+  This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License 2.0
+  which accompanies this distribution, and is available at
+  https://www.eclipse.org/legal/epl-2.0/
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Contributors:
+       Thales - Initial API and implementation
+-->
+<setup:Project
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
+    xmlns:jdt="http://www.eclipse.org/oomph/setup/jdt/1.0"
+    xmlns:predicates="http://www.eclipse.org/oomph/predicates/1.0"
+    xmlns:projects="http://www.eclipse.org/oomph/setup/projects/1.0"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    xmlns:setup.targlets="http://www.eclipse.org/oomph/setup/targlets/1.0"
+    xmlns:setup.workingsets="http://www.eclipse.org/oomph/setup/workingsets/1.0"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore http://www.eclipse.org/oomph/setup/workingsets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
+    name="mms-capella"
+    label="MMS Connector for Capella">
+  <setupTask
+      xsi:type="jdt:JRETask"
+      version="JavaSE-1.8"
+      location="${jre.location-1.8}"
+      name="JRE for JavaSE-1.8">
+    <description>Define the JRE needed to compile and run the Java projects of ${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:EclipseIniTask"
+      option="-Xms"
+      value="1G"
+      vm="true">
+    <description>Set the heap space needed to work with the projects of ${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:EclipseIniTask"
+      option="-Xmx"
+      value="8G"
+      vm="true">
+    <description>Set the heap space needed to work with the projects of ${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:CompoundTask"
+      name="Eclipse Preferences">
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.core.resources">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.core.resources/encoding"
+          value="UTF-8"/>
+    </setupTask>
+  </setupTask>
+  <setupTask
+      xsi:type="git:GitCloneTask"
+      id="git.clone.mms-capella"
+      remoteURI="ssh://git@github.com:openmbee/mms-capella.git">
+    <description>${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="projects:ProjectsImportTask"
+      id="import.mms-capella"
+      predecessor="git.clone.mms-capella">
+    <sourceLocator
+        rootFolder="${git.clone.mms-capella.location}"
+        locateNestedProjects="true"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.workingsets:WorkingSetTask"
+      predecessor="import.mms-capella">
+    <workingSet
+        name="${scope.project.label} - Plugins">
+      <predicate
+          xsi:type="predicates:NotPredicate">
+        <operand
+            xsi:type="predicates:OrPredicate">
+          <operand
+              xsi:type="predicates:LocationPredicate"
+              pattern=".*/releng/.*"/>
+          <operand
+              xsi:type="predicates:LocationPredicate"
+              pattern=".*/features/.*"/>
+          <operand
+              xsi:type="predicates:LocationPredicate"
+              pattern=".*/tests/.*"/>
+          <operand
+              xsi:type="predicates:LocationPredicate"
+              pattern=".*/examples/.*"/>
+        </operand>
+      </predicate>
+    </workingSet>
+    <workingSet
+        name="${scope.project.label} - Releng">
+      <predicate
+          xsi:type="predicates:OrPredicate">
+        <operand
+            xsi:type="predicates:LocationPredicate"
+            pattern=".*/releng/.*"/>
+        <operand
+            xsi:type="predicates:LocationPredicate"
+            pattern=".*/features/.*"/>
+      </predicate>
+    </workingSet>
+    <workingSet
+        name="${scope.project.label} - Test">
+      <predicate
+          xsi:type="predicates:OrPredicate">
+        <operand
+            xsi:type="predicates:LocationPredicate"
+            pattern=".*/tests/.*"/>
+        <operand
+            xsi:type="predicates:LocationPredicate"
+            pattern=".*/examples/.*"/>
+      </predicate>
+    </workingSet>
+    <description>The dynamic working sets for ${scope.project.label}</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.targlets:TargletTask"
+      predecessor="import.mms-capella"
+      targetName="MMS Connector for Capella">
+    <targlet
+        name="MMS Connector for Capella">
+<!-- Uncomment it if you would like to re-generate the target file from the Oomph targlet -->
+<!--       <annotation -->
+<!--           source="http:/www.eclipse.org/oomph/targlets/TargetDefinitionGenerator"> -->
+<!--         <detail -->
+<!--             key="location"> -->
+<!--           <value>${git.clone.mms-capella.location/releng/com.thalesgroup.mde.openmbee.connector.target/mms-connector.target}</value> -->
+<!--         </detail> -->
+<!--         <detail -->
+<!--             key="extraUnits"> -->
+<!--           <value>org.eclipse.equinox.executable.feature.group</value> -->
+<!--         </detail> -->
+<!--         <detail -->
+<!--             key="singleLocation"> -->
+<!--           <value>true</value> -->
+<!--         </detail> -->
+<!--         <detail -->
+<!--             key="includeAllPlatforms"> -->
+<!--           <value>false</value> -->
+<!--         </detail> -->
+<!--         <detail -->
+<!--             key="includeSource"> -->
+<!--           <value>true</value> -->
+<!--         </detail> -->
+<!--       </annotation> -->
+      <requirement name="com.google.gson"/>
+      <requirement name="com.google.guava" versionRange="[15.0.0,16.0.0)"/>
+      <requirement name="org.apache.commons.codec"/>
+      <requirement name="org.apache.commons.io"/>
+      <requirement name="org.apache.commons.lang"/>
+      <requirement name="org.apache.commons.logging"/>
+      <requirement name="org.apache.httpcomponents.httpclient"/>
+      <requirement name="org.apache.httpcomponents.httpcore"/>
+      <requirement name="org.eclipse.equinox.sdk.feature.group"/>
+      <requirement name="org.eclipse.license.feature.group"/>
+      <requirement name="org.eclipse.sdk.feature.group"/>
+      <requirement name="org.eclipse.sirius.aql.feature.group"/>
+      <requirement name="org.eclipse.sirius.specifier.feature.group"/>
+      <requirement name="org.polarsys.capella.core.dashboard.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.core.properties.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.core.sequencediag.specific"/>
+      <requirement name="org.polarsys.capella.core.sirius.analysis"/>
+      <requirement name="org.polarsys.capella.core.transfo.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.core.ui.quickfix.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.core.ui.semantic.browser.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.core.ui.wizards.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.core.validation.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.detachment.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.rcp.feature.feature.group"/>
+      <requirement name="org.polarsys.capella.studio.product.feature.feature.group"/>
+      <requirement name="org.polarsys.kitalpha.sdk.feature.feature.group"/>
+      <requirement name="org.polarsys.kitalpha.emde.feature.feature.group"/>
+      <repositoryList>
+        <repository url="https://download.eclipse.org/capella/core/updates/releases/1.3.1-R20190520-182008/org.polarsys.capella.rcp.site/"/>
+        <repository url="https://download.eclipse.org/capella/core/updates/releases/1.3.1-R20190520-182008/org.polarsys.capella.egf.site/"/>
+        <repository url="https://download.eclipse.org/kitalpha/updates/release/sdk/1.3.1/"/>
+        <repository url="https://download.eclipse.org/kitalpha/updates/release/runtimecore/1.3.1/"/>
+        <repository url="https://download.eclipse.org/kitalpha/updates/release/runtime/1.3.1/"/>
+        <repository url="https://download.eclipse.org/modeling/amalgam/updates/stable/1.10.1-S20190510/capella"/>
+        <repository url="https://download.eclipse.org/sirius/updates/legacy/1.1.0/"/>
+        <repository url="https://download.eclipse.org/sirius/updates/stable/6.1.3-S20190506-061916/oxygen/"/>
+        <repository url="https://download.eclipse.org/diffmerge/releases/0.11.0/edm-patterns-site/"/>
+        <repository url="https://download.eclipse.org/diffmerge/releases/0.11.0/edm-coevolution-site/"/>
+        <repository url="https://download.eclipse.org/diffmerge/releases/0.11.2/emf-diffmerge-site/"/>
+        <repository url="https://download.eclipse.org/nebula/releases/1.2.0/"/>
+        <repository url="https://download.eclipse.org/tools/orbit/downloads/drops/R20170307180635/repository/"/>
+        <repository url="https://download.eclipse.org/egf/updates/1.6.0/oxygen/"/>
+        <repository url="https://download.eclipse.org/cbi/updates/license"/>
+        <repository url="https://download.eclipse.org/releases/oxygen/201803211000/"/>
+        <repository url="https://download.eclipse.org/eclipse/updates/4.7/"/>
+        <repository url="https://download.eclipse.org/capella/capellastudio/updates/release/sdk/1.3.1/"/>
+      </repositoryList>
+    </targlet>
+  </setupTask>
+  <stream name="master" label="Master"/>
+  <description>The MMS Connector for Capella provides a communication interface between the Capella RCP client in which it has been installed and the MMS storage servers.</description>
+</setup:Project>

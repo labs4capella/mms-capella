@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: com.thalesgroup.mde.openmbee.connector.mms.ui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Automatic-Module-Name: com.thalesgroup.mde.openmbee.connector.mms.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
+ com.thalesgroup.mde.openmbee.connector.mms,
+ org.eclipse.swt,
+ org.eclipse.jface
+Export-Package: com.thalesgroup.mde.openmbee.connector.mms.ui
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: com.thalesgroup.mde.openmbee.connector.mms.ui.MmsUiPlugin

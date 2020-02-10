@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+  Copyright (c) 2020 Thales Global Services S.A.S.
+ 
+  This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License 2.0
+  which accompanies this distribution, and is available at
+  https://www.eclipse.org/legal/epl-2.0/
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Contributors:
+       Thales - Initial API and implementation
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<link rel="stylesheet" type="text/css" href="PLUGINS_ROOT/org.polarsys.capella.doc/html/styles.css" media="all"/>
+	<title>Export wizard</title>
+</head>
+<body>
+<h1>Export wizard</h1>
+<p>
+The export wizard is accessible through the main menu <strong>File / Export...</strong>
+</p>
+<p>
+Then, within the proposed list, select the item <strong>MMS / Capella Project to MMS</strong>
+</p>
+<img src="../../images/export-wizard1.png" alt="Export wizard" title="Export wizard" height="320"/>
+<p>
+Then, within the proposed list, select the project that will be exported to MMS
+</p>
+<img src="../../images/export-wizard2.png" alt="Export wizard" title="Export wizard" height="320"/>
+<p>
+Then, follow the sequence described below:
+<ol>
+  <li>Fill-in the <strong>MMS server URL</strong> and its related credentials</li>
+  <li>Click on the button <strong>Load organizations</strong>, to validate the connection and load the organizations</li>
+  <li>Then, select how the project will be exported :
+    <ol>
+      <li>If <strong>New</strong> is selected, the project will be exported to a new MMS project with the given <strong>Name</strong> and a new generated <strong>ID</strong></li>
+      <li>If <strong>Update</strong> is selected, the project will be exported to the selected existing <strong>MMS Project</strong> and the selected existing <strong>Ref (branch)</strong></li>
+    </ol>
+  </li>
+  <li>An optional commit message can be filled-in</li>
+  <li>Then, click on the button <strong>Finish</strong>, to perform the export</li>
+</ol>
+</p>
+<img src="../../images/export-wizard3.png" alt="Export wizard" title="Export wizard" height="420"/>
+
+</body>
+</html>

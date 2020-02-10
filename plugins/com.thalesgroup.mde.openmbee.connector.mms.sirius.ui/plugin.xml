@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+  Copyright (c) 2020 Thales Global Services S.A.S.
+ 
+  This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License 2.0
+  which accompanies this distribution, and is available at
+  https://www.eclipse.org/legal/epl-2.0/
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Contributors:
+       Thales - Initial API and implementation
+-->
+<plugin>
+   <extension point="org.eclipse.ui.exportWizards">
+      <wizard
+            category="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.category.export"
+            class="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.CapellaMmsExportWizard"
+            icon="platform:/plugin/org.polarsys.capella.core.platform.sirius.ui.project/icons/capella_16.png"
+            id="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.wizard.export"
+            name="Capella Project to MMS">
+      </wizard>
+      <category id="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.category.export" name="MMS"/>
+   </extension>
+   <extension point="org.eclipse.ui.importWizards">
+      <wizard
+            category="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.category.import"
+            class="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.CapellaMmsImportWizard"
+            icon="platform:/plugin/org.polarsys.capella.core.platform.sirius.ui.project/icons/capella_16.png"
+            id="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.wizard.import"
+            name="Capella Project from MMS">
+      </wizard>
+      <category id="com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.category.import" name="MMS"/>
+   </extension>
+
+</plugin>

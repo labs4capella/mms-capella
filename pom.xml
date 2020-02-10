@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2020 Thales Global Services S.A.S.
+ 
+  This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License 2.0
+  which accompanies this distribution, and is available at
+  https://www.eclipse.org/legal/epl-2.0/
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Contributors:
+       Thales - Initial API and implementation
+-->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.thalesgroup</groupId>
+	<artifactId>com.thalesgroup.mde.openmbee.connector</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho.version>1.0.0</tycho.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- testing -->
+		<test.url.mms>http://localhost:8185</test.url.mms>
+
+		<!-- packaging -->
+		<packagedAddonName>mms-capella</packagedAddonName>
+
+	</properties>
+
+	<modules>
+		<module>features/com.thalesgroup.mde.openmbee.connector.mms.feature</module>
+
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.fsmodel</module>
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.mms</module>
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.mms.doc</module>
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.mms.management.ui</module>
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.mms.sirius</module>
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.mms.sirius.ui</module>
+		<module>plugins/com.thalesgroup.mde.openmbee.connector.mms.ui</module>
+
+		<module>releng/com.thalesgroup.mde.openmbee.connector.mms.site</module>
+		<module>releng/com.thalesgroup.mde.openmbee.connector.target</module>
+
+		<!-- junit tests require an accessible running instance of MMS, they will be contributed later -->
+		<!--module>tests/com.thalesgroup.mde.openmbee.connector.mms.sirius.test</module>
+		<module>tests/com.thalesgroup.mde.openmbee.connector.mms.test</module-->
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>com.thalesgroup</groupId>
+							<artifactId>com.thalesgroup.mde.openmbee.connector.target</artifactId>
+							<version>1.0.0-SNAPSHOT</version>
+							<classifier>com.thalesgroup.mde.openmbee.connector.target</classifier>
+						</artifact>
+					</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<argLine>-Dtest.url.mms=${test.url.mms}</argLine>
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-repository-plugin</artifactId>
+					<version>${tycho.version}</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<id>archive-repository</id>
+							<goals>
+								<goal>archive-repository</goal>
+							</goals>
+							<configuration>
+								<finalName>${packagedAddonName}-updateSite-${unqualifiedVersion}.${buildQualifier}</finalName>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

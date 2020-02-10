@@ -1,0 +1,10 @@
+These following images are made available under the terms of the Eclipse Public License v2.0
+which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v20.html
+
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/export-wizard1.png
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/export-wizard2.png
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/export-wizard3.png
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/import-wizard1.png
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/import-wizard2.png
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/repositories-view1.png
+com.thalesgroup.mde.openmbee.connector.mms.doc/images/repositories-view2.png

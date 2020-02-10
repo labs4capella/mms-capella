@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2020 Thales Global Services S.A.S.
+ 
+  This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License 2.0
+  which accompanies this distribution, and is available at
+  https://www.eclipse.org/legal/epl-2.0/
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Contributors:
+       Thales - Initial API and implementation
+-->
+<contexts>
+	<context id="viewer" title="Sample View">
+		<description>The purpose if this view is to manage MMS repositories from the Eclipse IDE.</description>
+		<topic href="/PLUGINS_ROOT/org.eclipse.platform.doc.isv/guide/ua_help_context.htm" label="Context-sensitive help">
+			<enablement>
+				<with variable="platform">
+	            	<test property="org.eclipse.core.runtime.isBundleInstalled" args="org.eclipse.platform.doc.isv"/>
+	     		</with>
+			</enablement>
+		</topic>
+	</context>
+</contexts>
