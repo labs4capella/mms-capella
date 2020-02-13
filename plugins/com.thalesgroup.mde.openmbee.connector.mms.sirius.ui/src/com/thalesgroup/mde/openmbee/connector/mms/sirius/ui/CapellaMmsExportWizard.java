@@ -184,6 +184,7 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 				SiriusProjectConnector projectConnector = new SiriusProjectConnector();
 				monitor.beginTask("Export to MMS", 2+projectConnector.getNumberOfSubTaskOfToMms()); //$NON-NLS-1$
 				
+				String organizationId;
 				String projectId;
 				String projectFeaturePrefix;
 				String refId;
@@ -195,6 +196,7 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 														connectionData.projectId,
 														connectionData.projectServerName, 
 														selectedProject.getName());
+					organizationId = project.org;
 					projectId = project.id;
 					projectFeaturePrefix = project.featurePrefix;
 					MMSRefDescriptor ref = serverHelper.getOrCreateBranch(project.org, project.id, 
@@ -202,6 +204,7 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 					refId = ref.id;
 				} else {
 					// otherwise use the caught data
+					organizationId = connectionData.orgId;
 					projectId = connectionData.projectId;
 					projectFeaturePrefix = connectionData.projectFeaturePrefix;
 					refId = connectionData.refId;
@@ -222,7 +225,8 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 				}
 				if(siriusModelFiles.size()>1) {
 					success = projectConnector.toMms(connectionData.serverUrl, 
-														connectionData.autData, 
+														connectionData.autData,
+														organizationId,
 														projectId, 
 														refId != null ? refId : MMSServerHelper.MMS_REF__DEFAULT,
 														siriusModelFiles,

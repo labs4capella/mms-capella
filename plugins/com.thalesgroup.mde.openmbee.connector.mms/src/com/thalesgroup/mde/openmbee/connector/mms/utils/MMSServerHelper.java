@@ -16,6 +16,7 @@ package com.thalesgroup.mde.openmbee.connector.mms.utils;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.getPreparedGsonBuilder;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readBranchesFromJson;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readCommitsFromJson;
+import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readElementsFromJson;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readOrganizationsFromJson;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readProjectsFromJson;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readRootFromJson;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
@@ -56,7 +58,7 @@ public class MMSServerHelper {
 	public static final String MMS_REF__DEFAULT = "master"; //$NON-NLS-1$
 
 	private static final int MAX_RETRY_NUMBER = 5;
-	
+
 	private String baseUrl;
 	private RestApiHelper restHelper;
 
@@ -99,9 +101,9 @@ public class MMSServerHelper {
 		}
 		MMSRootDescriptor root = readRootFromJson(loginTicketJson);
 		if (root.data != null && root.data.ticket != null && root.data.ticket.length()>0) {
-			return root.data.ticket;
+			return root.data.ticket; // MMS 3.x
 		} else if (root.token != null && root.token.length()>0) {
-			return root.token;
+			return root.token; // MMS 4
 		} else {
 			throw new MMSConnectionException("Invalid login response:\r\n"+loginTicketJson); //$NON-NLS-1$
 		}
@@ -288,31 +290,42 @@ public class MMSServerHelper {
 	 */
 	public MMSProjectDescriptor createProject(String orgId, String projectId, String projectServerName, String projectEclipseName) throws MMSConnectionException {
 		MMSProjectDescriptor project = new MMSProjectDescriptor();
+		if (!isMMS4API()) {			
+			project.featurePrefix = MMSProjectDescriptor.FEATURE_PREFIX__EMF;
+			project.clientSideName = projectEclipseName;
+			project.orgId = orgId;
+		} else {
+			project.type = null;
+			project.visibility = MMSProjectDescriptor.PRIVATE_VISIBILITY; // MMS 4
+		}
 		project.name = projectServerName;
-		project.featurePrefix = MMSProjectDescriptor.FEATURE_PREFIX__EMF;
 		if(projectId == null || projectId.isEmpty()) {
 			project.id = generateUniqueProjectId(orgId, projectServerName);
 		} else {
 			project.id = escape(projectId);
 		}
-		project.clientSideName = projectEclipseName;
-		project.orgId = orgId;
 		MMSRootDescriptor root = new MMSRootDescriptor();
 		root.projects.add(project);
-		
-		String json = getPreparedGsonBuilder().create().toJson(root);
+
+		String json = isMMS4API() ?
+				getPreparedGsonBuilder().create().toJson(new MMSProjectDescriptor[] { project })
+				: getPreparedGsonBuilder().create().toJson(root);
 		try {
 			Request request = restHelper.preparePost(URL_POSTFIX__PROJECTS_OF_ORGANIZATION, orgId)
 										.bodyString(json, ContentType.APPLICATION_JSON);
 			String resp = tryToExecuteAndGetContentAsString(request);
-			MMSRootDescriptor respRoot = readRootFromJson(resp);
-			return respRoot.projects.get(0);
+			List<MMSProjectDescriptor> respRoot = readProjectsFromJson(resp);
+			return respRoot.get(0);
 		} catch (IOException e) {
 			throw new MMSConnectionException(String.format("Cannot create project in the '%s' organization with the id '%s'", orgId, projectId), e); //$NON-NLS-1$
 		}
 	}
 
 	public String generateUniqueProjectId(String orgId, String projectName) {
+		if (isMMS4API()) {
+			return UUID.randomUUID().toString();
+		}
+
 		String projectIdBase = generateBaseProjectId(orgId, projectName);
 		Set<String> projectIdsOnServer = getProjects().stream().map(p -> p.id.toLowerCase()).collect(Collectors.toSet());
 		boolean idCollision = projectIdsOnServer.contains(projectIdBase.toLowerCase());
@@ -433,7 +446,6 @@ public class MMSServerHelper {
 	
 	public List<MMSCommitDescriptor> getCommits(String organizationId, String projectId, String branchId) throws MMSConnectionException {
 		try {
-			//Request request = restHelper.prepareGet("projects/%s/refs/%s/commits", projectId, branchId); //$NON-NLS-1$
 			Request request;
 			if (isMMS4API()) {
 				request = restHelper.prepareGet("orgs/%s/projects/%s/branches/%s/commits", organizationId, projectId, branchId); //$NON-NLS-1$
@@ -473,32 +485,37 @@ public class MMSServerHelper {
 				preparedGet = restHelper.prepareGet("projects/%s/refs/%s/elements/%s?commitId=%s", projectId, branchId, elementId, commitId); //$NON-NLS-1$
 			}
 			String projectsJson = tryToExecuteAndGetContentAsString(preparedGet);
-			return readRootFromJson(projectsJson).elements;
+			return readElementsFromJson(projectsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query branches of '%s' project from %s", projectId, baseUrl), e); //$NON-NLS-1$
 		}
 	}
 	
-	public List<MMSModelElementDescriptor> getModelElements(String projectId, String branchId) throws MMSConnectionException {
+	public List<MMSModelElementDescriptor> getModelElements(String organizationId, String projectId, String branchId) throws MMSConnectionException {
 		try {
-			Request request = restHelper.prepareGet("projects/%s/refs/%s/elements", projectId, branchId); //$NON-NLS-1$
+			Request request;
+			if (isMMS4API()) {
+				request = restHelper.prepareGet("orgs/%s/projects/%s/branches/%s/elements", organizationId, projectId, branchId); //$NON-NLS-1$
+			} else {
+				request = restHelper.prepareGet("projects/%s/refs/%s/elements", projectId, branchId); //$NON-NLS-1$
+			}
 			String projectsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(projectsJson).elements;
+			return readElementsFromJson(projectsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query branches of '%s' project from %s", projectId, baseUrl), e); //$NON-NLS-1$
 		}
 	}
 	
-	public List<MMSModelElementDescriptor> getModelElements(String projectId, String branchId, String commitId) throws MMSConnectionException {
+	public List<MMSModelElementDescriptor> getModelElements(String organizationId, String projectId, String branchId, String commitId) throws MMSConnectionException {
 		if(commitId==null) {
-			return getModelElements(projectId, branchId);
+			return getModelElements(organizationId, projectId, branchId);
 		}
 		try {
 			Request request = restHelper.prepareGet("projects/%s/refs/%s/elements?commitId=%s", projectId, branchId, commitId); //$NON-NLS-1$
 			String projectsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(projectsJson).elements;
+			return readElementsFromJson(projectsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query branches of '%s' project from %s", projectId, baseUrl), e); //$NON-NLS-1$
@@ -545,20 +562,27 @@ public class MMSServerHelper {
 		}
 	}
 	
-	public boolean removeModelElements(String projectId, String branchId, String commitComment, List<MMSModelElementDescriptor> meds) 
+	public boolean removeModelElements(String organizationId, String projectId, String branchId, String commitComment, List<MMSModelElementDescriptor> meds) 
 			throws MMSConnectionException {
 		MMSRootDescriptor root = new MMSRootDescriptor();
 		root.elements = meds;
 		root.comment = commitComment;
-		
-		String json = getPreparedGsonBuilder().create().toJson(root);
+
 		try {
-			DeleteRequestWithBody request = 
-					restHelper.prepareDelete("projects/%s/refs/%s/elements", projectId, branchId) //$NON-NLS-1$
-									.bodyString(json, ContentType.APPLICATION_JSON);
+			DeleteRequestWithBody request;
+			if (isMMS4API()) {
+				String json = getPreparedGsonBuilder().create().toJson(meds.toArray());
+				request = restHelper.prepareDelete("orgs/%s/projects/%s/branches/%s/elements", organizationId, projectId, branchId) //$NON-NLS-1$
+							.bodyString(json, ContentType.APPLICATION_JSON);
+			} else {
+				String json = getPreparedGsonBuilder().create().toJson(root);
+				request = restHelper.prepareDelete("projects/%s/refs/%s/elements", projectId, branchId) //$NON-NLS-1$
+							.bodyString(json, ContentType.APPLICATION_JSON);
+			}
+
 			String resp = tryToExecuteAndGetContentAsString(request);
-			MMSRootDescriptor returnedRoot = readRootFromJson(resp);
-			return returnedRoot.elements.size() == meds.size();
+			List<MMSModelElementDescriptor> returnedElements = readElementsFromJson(resp);
+			return returnedElements.size() == meds.size();
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Element creation failed at the branch '%s' of project '%s' on the server '%s'", branchId, projectId, baseUrl), e); //$NON-NLS-1$

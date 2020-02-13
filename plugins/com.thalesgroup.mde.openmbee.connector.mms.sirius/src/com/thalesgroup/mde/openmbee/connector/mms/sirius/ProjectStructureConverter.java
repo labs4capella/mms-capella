@@ -160,7 +160,7 @@ public class ProjectStructureConverter {
 		return convertedFiles;
 	}
 	
-	public Map<IResource, MMSModelElementDescriptor> toMMS(String projectId, String branchId, String featurePrefix, Collection<IFile> files) {
+	public Map<IResource, MMSModelElementDescriptor> toMMS(String baseUrl, String autData, String projectId, String branchId, String featurePrefix, Collection<IFile> files) {
 		String fileNameFeatureId = featurePrefix+FILE_NAME;
 		String filePathFeatureId = featurePrefix+FILE_PATH;
 		String fileContentFeatureId = featurePrefix+FILE_CONTENT;
@@ -168,7 +168,7 @@ public class ProjectStructureConverter {
 		Stack<IResource> convertibles = new Stack<>();
 		Map<IResource, MMSModelElementDescriptor> convertedResources = new HashMap<>();
 		Map<String, MMSModelElementDescriptor> convertedResourcesForIDs = new HashMap<>();
-		MMSServerHelper mmsHelper = new MMSServerHelper(null, null);
+		MMSServerHelper mmsHelper = new MMSServerHelper(baseUrl, autData);
 		convertibles.addAll(files);
 		while(!convertibles.empty()) {
 			IResource current = convertibles.pop();

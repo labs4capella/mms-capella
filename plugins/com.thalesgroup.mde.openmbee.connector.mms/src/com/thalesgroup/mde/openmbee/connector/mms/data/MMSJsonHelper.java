@@ -92,6 +92,21 @@ public class MMSJsonHelper {
 		return commits;
 	}
 
+	public static List<MMSModelElementDescriptor> readElementsFromJson(String json) {
+		List<MMSModelElementDescriptor> elements = new ArrayList<>();
+		try {
+			MMSRootDescriptor root = readRootFromJson(json);
+			for (MMSModelElementDescriptor element : root.elements) {
+				elements.add(element);
+			}
+		} catch (JsonSyntaxException ex) {
+			// MMS4 data structure
+			MMSModelElementDescriptor[] elementsArray = readElementsFromJsonArray(json);
+			return Arrays.asList(elementsArray);
+		}
+		return elements;
+	}
+
 	public static MMSRootDescriptor readRootFromJson(String json) {
 		try(Reader reader = new StringReader(json)) {
 			Gson gson = getPreparedGsonBuilder().create();
@@ -132,6 +147,15 @@ public class MMSJsonHelper {
 		try(Reader reader = new StringReader(json)) {
 			Gson gson = getPreparedGsonBuilder().create();
 			return gson.fromJson(reader, MMSCommitDescriptor[].class);
+		} catch (IOException e) {
+			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
+		}
+	}
+
+	public static MMSModelElementDescriptor[] readElementsFromJsonArray(String json) {
+		try(Reader reader = new StringReader(json)) {
+			Gson gson = getPreparedGsonBuilder().create();
+			return gson.fromJson(reader, MMSModelElementDescriptor[].class);
 		} catch (IOException e) {
 			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
 		}

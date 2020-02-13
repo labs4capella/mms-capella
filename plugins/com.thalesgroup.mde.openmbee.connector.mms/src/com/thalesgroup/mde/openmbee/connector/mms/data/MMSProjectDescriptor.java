@@ -20,6 +20,8 @@ public class MMSProjectDescriptor extends MMSNamedDescriptor {
 	public static final String FEATURE_PREFIX__EMF = "EMF_FEATURE__"; //$NON-NLS-1$
 	public static final String FEATURE_PREFIX = "featurePrefix"; //$NON-NLS-1$
 	public static final String CLIENT_SIDE_NAME = "clientSideName"; //$NON-NLS-1$
+	public static final String PRIVATE_VISIBILITY = "private"; //$NON-NLS-1$
+	public static final String INTERNAL_VISIBILITY = "internal"; //$NON-NLS-1$
 	public String _refId;
 	public String _elasticId;
 	public Boolean _editable;
@@ -36,6 +38,7 @@ public class MMSProjectDescriptor extends MMSNamedDescriptor {
 	public String _qualifiedId;
 	public String orgId; // MMS3.x
 	public String org; // MMS4
+	public String visibility; // MMS4
 	public String featurePrefix;
 	public String clientSideName;
 	public List<String> _inRefIds = new ArrayList<>();

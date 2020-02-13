@@ -60,22 +60,22 @@ public class SiriusProjectConnector {
 	public static final String MESSAGE_CANCELLATION_EXPORT = "MMS export cancelled. Probably some elements have already been created on the server."; //$NON-NLS-1$
 	public static final String MESSAGE_CANCELLATION_IMPORT = "MMS import cancelled."; //$NON-NLS-1$
 	
-	public boolean toMms(String baseUrl, String autData, String projectId, String branchId, Collection<Resource> resources, String featurePrefix) throws InterruptedException {
-		return toMms(baseUrl, autData, projectId, branchId, resources, "", featurePrefix); //$NON-NLS-1$
+	public boolean toMms(String baseUrl, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String featurePrefix) throws InterruptedException {
+		return toMms(baseUrl, autData, organizationId, projectId, branchId, resources, "", featurePrefix); //$NON-NLS-1$
 	}
 	
-	public boolean toMms(String baseUrl, String autData, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix) throws InterruptedException {
-		return toMms(baseUrl, autData, projectId, branchId, resources, commitComment, featurePrefix, new NullProgressMonitor());
+	public boolean toMms(String baseUrl, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix) throws InterruptedException {
+		return toMms(baseUrl, autData, organizationId, projectId, branchId, resources, commitComment, featurePrefix, new NullProgressMonitor());
 	}
 	
-	public boolean toMms(String baseUrl, String autData, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix, IProgressMonitor monitor) throws InterruptedException {
+	public boolean toMms(String baseUrl, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix, IProgressMonitor monitor) throws InterruptedException {
 		try {
 			// Convert structure
 			startNewSubTaskIfNotCancelled(monitor, "Convert project structure", MESSAGE_CANCELLATION_EXPORT); //$NON-NLS-1$
 			ProjectStructureConverter structureConverter = new ProjectStructureConverter();
 			Map<Resource, IFile> files = resources.stream().collect(Collectors.toMap(r -> r, r -> getFile(r)));
 			Map<IResource, MMSModelElementDescriptor> convertedFiles = 
-					structureConverter.toMMS(projectId, branchId, featurePrefix, files.values());
+					structureConverter.toMMS(baseUrl, autData, projectId, branchId, featurePrefix, files.values());
 			monitor.worked(1);
 			
 			// Convert model elements
@@ -107,7 +107,7 @@ public class SiriusProjectConnector {
 														String.format(FILTER_TEMPLATE__HOLDING_BIN, projectId), 
 														String.format(FILTER_TEMPLATE__VIEW_INSTANCES_BIN, projectId));
 			// Calculate the removable elements
-			List<MMSModelElementDescriptor> removables = serverHelper.getModelElements(projectId, branchId).stream()
+			List<MMSModelElementDescriptor> removables = serverHelper.getModelElements(organizationId, projectId, branchId).stream()
 																	.filter(med -> {
 																		// filter out the base elements
 																		if(filteredElements.contains(med.id)) {
@@ -118,7 +118,7 @@ public class SiriusProjectConnector {
 																	}).collect(Collectors.toList());
 			if(removables.size() > 0) {
 				// Delete the locally removed elements from the server
-				if(!serverHelper.removeModelElements(projectId, branchId, String.format(MESSAGE__DELETE_COMMIT, commitComment), removables)) {
+				if(!serverHelper.removeModelElements(organizationId, projectId, branchId, String.format(MESSAGE__DELETE_COMMIT, commitComment), removables)) {
 					throw new InterruptedException(MESSAGE__UNSUCCESSFUL_DELETE);
 				}
 			}
