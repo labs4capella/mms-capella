@@ -136,7 +136,8 @@ public class MmsChildCreationWizard extends Wizard {
 							}
 							break;
 						case Ref:
-							valid = serverHelper.getBranches(MmsChildCreationWizard.this.parent.id).stream()
+							MMSIdentifiableDescriptor parent = MmsChildCreationWizard.this.parent;
+							valid = serverHelper.getBranches((parent instanceof MMSProjectDescriptor) ? ((MMSProjectDescriptor) parent).org : null, parent.id).stream()
 													.noneMatch(b -> b.id.contentEquals(id.getText()));
 							if(valid) {
 								nd = new MMSRefDescriptor();

@@ -61,7 +61,7 @@ public class SiriusProjectConnector {
 	public static final String MESSAGE_CANCELLATION_IMPORT = "MMS import cancelled."; //$NON-NLS-1$
 	
 	public boolean toMms(String baseUrl, String autData, String projectId, String branchId, Collection<Resource> resources, String featurePrefix) throws InterruptedException {
-		return toMms(baseUrl, autData, projectId, branchId, resources, "", featurePrefix);
+		return toMms(baseUrl, autData, projectId, branchId, resources, "", featurePrefix); //$NON-NLS-1$
 	}
 	
 	public boolean toMms(String baseUrl, String autData, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix) throws InterruptedException {
@@ -184,10 +184,10 @@ public class SiriusProjectConnector {
 					throw new InterruptedException("Project descriptor cannot be found on the server."); //$NON-NLS-1$
 				}
 			}
-			String featurePrefix = findFirstFeatureValue(projectDescriptor, MMSProjectDescriptor.FEATURE_PREFIX).orElse("").toString();
+			String featurePrefix = findFirstFeatureValue(projectDescriptor, MMSProjectDescriptor.FEATURE_PREFIX).orElse("").toString(); //$NON-NLS-1$
 			String projectNameInWorkspace = projectName != null ? projectName :
 													findFirstFeatureValue(projectDescriptor, MMSProjectDescriptor.CLIENT_SIDE_NAME)
-														.orElse(findFirstFeatureValue(projectDescriptor, "name")
+														.orElse(findFirstFeatureValue(projectDescriptor, "name") //$NON-NLS-1$
 																.orElse(projectDescriptor.msiDescriptor.id)).toString();
 			
 			List<MMSModelElementDescriptor> structureDescriptors = elements.stream()

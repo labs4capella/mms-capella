@@ -34,7 +34,8 @@ public class MMSProjectDescriptor extends MMSNamedDescriptor {
 	public String _uri;
 	public String _qualifiedName;
 	public String _qualifiedId;
-	public String orgId;
+	public String orgId; // MMS3.x
+	public String org; // MMS4
 	public String featurePrefix;
 	public String clientSideName;
 	public List<String> _inRefIds = new ArrayList<>();

@@ -36,13 +36,16 @@ public class RestApiHelper {
 	private final String baseUrl;
 	private String ticket;
 	private String autData;
-	
-	public RestApiHelper(String baseUrl, String ticket, String autData) {
+	private String apiPrefix;
+
+	public RestApiHelper(String baseUrl, String ticket, String autData, boolean isMMS4API) {
 		this.baseUrl = baseUrl;
 		//this.ticket = ticket;
 		this.autData = autData;
+		// MMS4 services API
+		this.apiPrefix = isMMS4API ? "api/" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/**
 	 * Update the authentication data.
 	 * 
@@ -177,9 +180,14 @@ public class RestApiHelper {
 	private String preparePostfix(String urlPostfix, Object... params) {
 		String postfix = ""; //$NON-NLS-1$
 		if(urlPostfix != null && urlPostfix.length()>0) {
+
+			// MMS4 services API
+			urlPostfix = apiPrefix+urlPostfix;
+
 			if(!baseUrl.endsWith("/")) { //$NON-NLS-1$
 				urlPostfix = "/"+urlPostfix; //$NON-NLS-1$
 			}
+			
 			if(params != null && params.length > 0) {
 				postfix = String.format(urlPostfix, params);
 			} else {

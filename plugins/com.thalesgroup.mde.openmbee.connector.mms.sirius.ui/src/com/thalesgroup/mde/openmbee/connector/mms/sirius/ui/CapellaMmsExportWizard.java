@@ -197,7 +197,7 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 														selectedProject.getName());
 					projectId = project.id;
 					projectFeaturePrefix = project.featurePrefix;
-					MMSRefDescriptor ref = serverHelper.getOrCreateBranch(project.id, 
+					MMSRefDescriptor ref = serverHelper.getOrCreateBranch(project.org, project.id, 
 														MMSServerHelper.MMS_REF__DEFAULT);
 					refId = ref.id;
 				} else {

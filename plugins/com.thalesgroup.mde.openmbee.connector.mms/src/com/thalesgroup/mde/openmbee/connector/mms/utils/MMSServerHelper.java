@@ -14,7 +14,10 @@
 package com.thalesgroup.mde.openmbee.connector.mms.utils;
 
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.getPreparedGsonBuilder;
-import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readOrgsFromJson;
+import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readBranchesFromJson;
+import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readCommitsFromJson;
+import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readOrganizationsFromJson;
+import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readProjectsFromJson;
 import static com.thalesgroup.mde.openmbee.connector.mms.data.MMSJsonHelper.readRootFromJson;
 
 import java.io.IOException;
@@ -59,9 +62,15 @@ public class MMSServerHelper {
 
 	public MMSServerHelper(String baseUrl, String autData) {
 		this.baseUrl = baseUrl;
-		restHelper = new RestApiHelper(baseUrl, null, autData);
+		restHelper = new RestApiHelper(baseUrl, null, autData, isMMS4API());
 	}
-	
+
+	public boolean isMMS4API() {
+		// MMS4 services API
+		// FIXME an explicit information shall replace this hazardous URL interpretation
+		return this.baseUrl.contains("alfresco") ? false : true; //$NON-NLS-1$
+	}
+
 	public void setAutData(String autData) {
 		restHelper.setAutData(autData);
 	}
@@ -77,7 +86,7 @@ public class MMSServerHelper {
 				if(!url.endsWith("/")) { //$NON-NLS-1$
 					url = url + "/"; //$NON-NLS-1$
 				}
-				url = url + "api/login";
+				url = url + "api/login"; //$NON-NLS-1$
 			}
 			Request request = Request.Post(url)
 										.bodyString(
@@ -89,8 +98,10 @@ public class MMSServerHelper {
 			throw new MMSConnectionException("Unable to send login request to "+url, e); //$NON-NLS-1$
 		}
 		MMSRootDescriptor root = readRootFromJson(loginTicketJson);
-		if(root.data != null && root.data.ticket != null && root.data.ticket.length()>0) {
+		if (root.data != null && root.data.ticket != null && root.data.ticket.length()>0) {
 			return root.data.ticket;
+		} else if (root.token != null && root.token.length()>0) {
+			return root.token;
 		} else {
 			throw new MMSConnectionException("Invalid login response:\r\n"+loginTicketJson); //$NON-NLS-1$
 		}
@@ -111,14 +122,14 @@ public class MMSServerHelper {
 				new String(
 						Base64.getDecoder().decode(
 								authData.substring(PREFIX__BASIC_AUTH_DATA.length()).getBytes())
-						).split(":");
+						).split(":"); //$NON-NLS-1$
 		if(userPasswordPair.length != 2) {
 			throw new IllegalArgumentException(String.format(MSG__INVALID_BASIC_AUTH_DATA, authData));
 		}
 		return userPasswordPair;
 	}
 	public static String encodeBasicAuthData(String username, String password) {
-		return PREFIX__BASIC_AUTH_DATA+Base64.getEncoder().encodeToString((username+":"+password).getBytes());
+		return PREFIX__BASIC_AUTH_DATA+Base64.getEncoder().encodeToString((username+":"+password).getBytes()); //$NON-NLS-1$
 	}
 	
 	
@@ -136,9 +147,9 @@ public class MMSServerHelper {
 		try {
 			Request request = restHelper.prepareGet(URL_POSTFIX__ORGANIZATIONS);
 			String orgsJson = tryToExecuteAndGetContentAsString(request);
-			return readOrgsFromJson(orgsJson);
+			return readOrganizationsFromJson(orgsJson);
 		} catch (IOException e) {
-			throw new MMSConnectionException("Cannot query organizations from "+baseUrl, e);
+			throw new MMSConnectionException("Cannot query organizations from "+baseUrl, e); //$NON-NLS-1$
 		}
 	}
 
@@ -171,10 +182,10 @@ public class MMSServerHelper {
 			Request request = restHelper.preparePost(URL_POSTFIX__ORGANIZATIONS)
 										.bodyString(json, ContentType.APPLICATION_JSON);
 			String response = tryToExecuteAndGetContentAsString(request);
-			List<MMSOrganizationDescriptor> createdOrg = readOrgsFromJson(response);
+			List<MMSOrganizationDescriptor> createdOrg = readOrganizationsFromJson(response);
 			return createdOrg.get(0);
 		} catch (IOException e) {
-			throw new MMSConnectionException("Cannot create org with the id "+orgId, e);
+			throw new MMSConnectionException("Cannot create org with the id "+orgId, e); //$NON-NLS-1$
 		}
 	}
 
@@ -239,7 +250,7 @@ public class MMSServerHelper {
 		try {
 			Request request = restHelper.prepareGet(URL_POSTFIX__PROJECTS_OF_ORGANIZATION, orgId);
 			String projectsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(projectsJson).projects;
+			return readProjectsFromJson(projectsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query projects of '%s' organization from %s", orgId, baseUrl), e); //$NON-NLS-1$
@@ -255,7 +266,7 @@ public class MMSServerHelper {
 		try {
 			Request request = restHelper.prepareGet(URL_POSTFIX__PROJECTS);
 			String projectsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(projectsJson).projects;
+			return readProjectsFromJson(projectsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query projects from %s", baseUrl), e); //$NON-NLS-1$
@@ -346,22 +357,32 @@ public class MMSServerHelper {
 	 ********************************** Branch handler features **********************************
 	 *********************************************************************************************/
 	
-	public List<MMSRefDescriptor> getBranches(String projectId) throws MMSConnectionException {
+	public List<MMSRefDescriptor> getBranches(String organizationId, String projectId) throws MMSConnectionException {
 		try {
-			Request request = restHelper.prepareGet("projects/%s/refs", projectId); //$NON-NLS-1$
+			Request request;
+			if (isMMS4API()) {
+				request = restHelper.prepareGet("orgs/%s/projects/%s/branches", organizationId, projectId); //$NON-NLS-1$
+			} else {
+				request = restHelper.prepareGet("projects/%s/refs", projectId); //$NON-NLS-1$
+			}
 			String projectsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(projectsJson).refs;
+			return readBranchesFromJson(projectsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query branches of '%s' project from %s", projectId, baseUrl), e); //$NON-NLS-1$
 		}
 	}
 	
-	public MMSRefDescriptor getBranch(String projectId, String branchId) throws MMSConnectionException {
+	public MMSRefDescriptor getBranch(String organizationId, String projectId, String branchId) throws MMSConnectionException {
 		try {
-			Request request = restHelper.prepareGet("projects/%s/refs/%s", projectId, branchId); //$NON-NLS-1$
+			Request request;
+			if (isMMS4API()) {
+				request = restHelper.prepareGet("orgs/%s/projects/%s/branches/%s", organizationId, projectId, branchId); //$NON-NLS-1$
+			} else {
+				request = restHelper.prepareGet("projects/%s/refs/%s", projectId, branchId); //$NON-NLS-1$
+			}
 			String projectsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(projectsJson).refs.get(0);
+			return readBranchesFromJson(projectsJson).get(0);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query branches of '%s' project from %s", projectId, baseUrl), e); //$NON-NLS-1$
@@ -402,19 +423,25 @@ public class MMSServerHelper {
 		}
 	}
 	
-	public MMSRefDescriptor getOrCreateBranch(String projectId, String branchId) {
+	public MMSRefDescriptor getOrCreateBranch(String organizationId, String projectId, String branchId) {
 		MMSRefDescriptor branch;
-		branch = getBranches(projectId).stream()
+		branch = getBranches(organizationId, projectId).stream()
 									.filter(r -> branchId.contentEquals(branchId))
 									.findFirst().orElseGet(() -> createBranch(projectId, branchId, branchId));
 		return branch;
 	}
 	
-	public List<MMSCommitDescriptor> getCommits(String projectId, String branchId) throws MMSConnectionException {
+	public List<MMSCommitDescriptor> getCommits(String organizationId, String projectId, String branchId) throws MMSConnectionException {
 		try {
-			Request request = restHelper.prepareGet("projects/%s/refs/%s/commits", projectId, branchId); //$NON-NLS-1$
+			//Request request = restHelper.prepareGet("projects/%s/refs/%s/commits", projectId, branchId); //$NON-NLS-1$
+			Request request;
+			if (isMMS4API()) {
+				request = restHelper.prepareGet("orgs/%s/projects/%s/branches/%s/commits", organizationId, projectId, branchId); //$NON-NLS-1$
+			} else {
+				request = restHelper.prepareGet("projects/%s/refs/%s/commits", projectId, branchId); //$NON-NLS-1$
+			}
 			String commitsJson = tryToExecuteAndGetContentAsString(request);
-			return readRootFromJson(commitsJson).commits;
+			return readCommitsFromJson(commitsJson);
 		} catch (IOException e) {
 			throw new MMSConnectionException(
 					String.format("Cannot query commits from the '%s' barnch of '%s' project from %s", branchId, projectId, baseUrl), e); //$NON-NLS-1$
@@ -496,7 +523,7 @@ public class MMSServerHelper {
 	
 	public List<MMSModelElementDescriptor> createModelElements(String projectId, String branchId, List<MMSModelElementDescriptor> meds) 
 			throws MMSConnectionException {
-		return createModelElements(projectId, branchId, "", meds);
+		return createModelElements(projectId, branchId, "", meds); //$NON-NLS-1$
 	}
 	
 	public List<MMSModelElementDescriptor> createModelElements(String projectId, String branchId, String commitComment, List<MMSModelElementDescriptor> meds) 

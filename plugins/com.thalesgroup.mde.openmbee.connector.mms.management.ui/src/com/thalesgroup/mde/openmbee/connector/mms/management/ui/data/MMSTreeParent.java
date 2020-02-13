@@ -85,9 +85,9 @@ public class MMSTreeParent extends MMSTreeObject {
 			} else if(mmsObject instanceof MMSOrganizationDescriptor) {
 				setChildren(wrapAll(helper.getProjects(mmsObject.id)));
 			} else if(mmsObject instanceof MMSProjectDescriptor) {
-				setChildren(wrapAll(helper.getBranches(mmsObject.id)));
+				setChildren(wrapAll(helper.getBranches(((MMSProjectDescriptor) mmsObject).org, mmsObject.id)));
 			} else if(mmsObject instanceof MMSRefDescriptor) {
-				setChildren(wrapAll(helper.getCommits(parent.mmsObject.id, mmsObject.id)));
+				setChildren(wrapAll(helper.getCommits(((MMSProjectDescriptor) parent.mmsObject).org, parent.mmsObject.id, mmsObject.id)));
 			}
 		}
 		if(children == null || children.size() == 0) hasChildren = false;
