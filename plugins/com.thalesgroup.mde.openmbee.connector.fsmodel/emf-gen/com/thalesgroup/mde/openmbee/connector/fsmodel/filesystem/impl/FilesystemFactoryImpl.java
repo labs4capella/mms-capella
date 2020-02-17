@@ -70,7 +70,7 @@ public class FilesystemFactoryImpl extends EFactoryImpl implements FilesystemFac
 			case FilesystemPackage.FILE: return createFile();
 			case FilesystemPackage.FOLDER: return createFolder();
 			default:
-				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
+				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 

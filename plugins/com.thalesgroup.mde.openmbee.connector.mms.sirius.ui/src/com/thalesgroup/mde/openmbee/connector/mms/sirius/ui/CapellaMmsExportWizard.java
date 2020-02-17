@@ -180,7 +180,7 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 		
 		if(connectionData != null && selectedProject != null) {
 			try {
-				MMSServerHelper serverHelper = new MMSServerHelper(connectionData.serverUrl, connectionData.autData);
+				MMSServerHelper serverHelper = new MMSServerHelper(connectionData.serverUrl, connectionData.apiVersion, connectionData.autData);
 				SiriusProjectConnector projectConnector = new SiriusProjectConnector();
 				monitor.beginTask("Export to MMS", 2+projectConnector.getNumberOfSubTaskOfToMms()); //$NON-NLS-1$
 				
@@ -196,11 +196,10 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 														connectionData.projectId,
 														connectionData.projectServerName, 
 														selectedProject.getName());
-					organizationId = project.org;
+					organizationId = project.orgId;
 					projectId = project.id;
 					projectFeaturePrefix = project.featurePrefix;
-					MMSRefDescriptor ref = serverHelper.getOrCreateBranch(project.org, project.id, 
-														MMSServerHelper.MMS_REF__DEFAULT);
+					MMSRefDescriptor ref = serverHelper.getOrCreateBranch(project.orgId, project.id, MMSServerHelper.MMS_REF__DEFAULT);
 					refId = ref.id;
 				} else {
 					// otherwise use the caught data
@@ -211,7 +210,7 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 				}
 				monitor.worked(1);
 				
-				// collect convertable resources
+				// collect convertible resources
 				if(monitor.isCanceled()) {
 					throw new InterruptedException(SiriusProjectConnector.MESSAGE_CANCELLATION_EXPORT);
 				}
@@ -224,7 +223,8 @@ public class CapellaMmsExportWizard extends ResultPageOwnerWizard {
 					throw new InterruptedException(SiriusProjectConnector.MESSAGE_CANCELLATION_EXPORT);
 				}
 				if(siriusModelFiles.size()>1) {
-					success = projectConnector.toMms(connectionData.serverUrl, 
+					success = projectConnector.toMms(connectionData.serverUrl,
+														connectionData.apiVersion,
 														connectionData.autData,
 														organizationId,
 														projectId, 

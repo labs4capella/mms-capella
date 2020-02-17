@@ -18,8 +18,7 @@ public class MMSRefDescriptor extends MMSNamedDescriptor {
 	public String parentCommitId;
 	public String parentRefId;
 	public String status;
-	public String twcId;
-    public String type;
+	public String type;
     
     public static final String TYPE__BRANCH = "Branch"; //$NON-NLS-1$
     

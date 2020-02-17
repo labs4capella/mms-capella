@@ -29,6 +29,9 @@ import com.thalesgroup.mde.openmbee.connector.mms.management.ui.data.MMSTreeObje
 import com.thalesgroup.mde.openmbee.connector.mms.management.ui.data.MMSTreeParent;
 
 public class MMSTreeObjectViewLabelProvider extends LabelProvider {
+	private static final String LBL_SERVER_DESCRIPTOR1 = "[%s] %s"; //$NON-NLS-1$
+	private static final String LBL_SERVER_DESCRIPTOR2 = "[%s] %s [%s]"; //$NON-NLS-1$
+
 		private static final String LBL_NAMED_DESCRIPTOR = "%s [%s]"; //$NON-NLS-1$
 		private static final String LBL_COMMIT_DESCRIPTOR = "%s [%s - %s]"; //$NON-NLS-1$
 		private IWorkbench workbench;
@@ -46,8 +49,8 @@ public class MMSTreeObjectViewLabelProvider extends LabelProvider {
 					} else if(mmsObject instanceof MMSServerDescriptor) {
 						MMSServerDescriptor mmsServer = (MMSServerDescriptor)mmsObject;
 						return mmsServer.url.contentEquals(mmsServer.name) ? 
-									mmsServer.name : 
-									String.format(LBL_NAMED_DESCRIPTOR, mmsServer.name, mmsServer.url);
+								String.format(LBL_SERVER_DESCRIPTOR1, mmsServer.apiVersion, mmsServer.name) : 
+								String.format(LBL_SERVER_DESCRIPTOR2, mmsServer.apiVersion, mmsServer.name, mmsServer.url);
 					} else {
 						return String.format(LBL_NAMED_DESCRIPTOR, ((MMSNamedDescriptor)mmsObject).name, mmsObject.id);
 					}

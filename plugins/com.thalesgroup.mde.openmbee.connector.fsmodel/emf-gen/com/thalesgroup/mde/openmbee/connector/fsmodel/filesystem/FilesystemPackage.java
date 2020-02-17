@@ -41,7 +41,7 @@ public interface FilesystemPackage extends EPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNAME = "filesystem";
+	String eNAME = "filesystem"; //$NON-NLS-1$
 
 	/**
 	 * The package namespace URI.
@@ -49,7 +49,7 @@ public interface FilesystemPackage extends EPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNS_URI = "http://www.thalesgroup.com/mde/openmbee/connector";
+	String eNS_URI = "http://www.thalesgroup.com/mde/openmbee/connector"; //$NON-NLS-1$
 
 	/**
 	 * The package namespace name.
@@ -57,7 +57,7 @@ public interface FilesystemPackage extends EPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	String eNS_PREFIX = "com.thalesgroup.mde.openmbee.connector.fsmodel";
+	String eNS_PREFIX = "com.thalesgroup.mde.openmbee.connector.fsmodel"; //$NON-NLS-1$
 
 	/**
 	 * The singleton instance of the package.

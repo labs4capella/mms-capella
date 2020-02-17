@@ -35,7 +35,7 @@ public class MMSTreeParent extends MMSTreeObject {
 		super(mmsObject);
 		if(mmsObject instanceof MMSServerDescriptor) {
 			MMSServerDescriptor server = (MMSServerDescriptor)mmsObject;
-			helper = new MMSServerHelper(server.url, server.autData);
+			helper = new MMSServerHelper(server.url, server.apiVersion, server.autData);
 		}
 	}
 	
@@ -85,9 +85,9 @@ public class MMSTreeParent extends MMSTreeObject {
 			} else if(mmsObject instanceof MMSOrganizationDescriptor) {
 				setChildren(wrapAll(helper.getProjects(mmsObject.id)));
 			} else if(mmsObject instanceof MMSProjectDescriptor) {
-				setChildren(wrapAll(helper.getBranches(((MMSProjectDescriptor) mmsObject).org, mmsObject.id)));
+				setChildren(wrapAll(helper.getBranches(((MMSProjectDescriptor) mmsObject).orgId, mmsObject.id)));
 			} else if(mmsObject instanceof MMSRefDescriptor) {
-				setChildren(wrapAll(helper.getCommits(((MMSProjectDescriptor) parent.mmsObject).org, parent.mmsObject.id, mmsObject.id)));
+				setChildren(wrapAll(helper.getCommits(((MMSProjectDescriptor) parent.mmsObject).orgId, parent.mmsObject.id, mmsObject.id)));
 			}
 		}
 		if(children == null || children.size() == 0) hasChildren = false;

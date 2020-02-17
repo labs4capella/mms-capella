@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.IContentProposal;
+import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -28,6 +30,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -45,36 +48,60 @@ public class MmsServerConnectionDataComposite extends Composite {
 	private static final String TITLE__CONNECTION_ERROR = "Connection Error"; //$NON-NLS-1$
 	private static final String MSG__UNSUCCESSFUL_LOGIN = "Login to the server %s was not successful."; //$NON-NLS-1$
 	protected static final int LAYOUT_MINCOLUMNNUM = 3;
-	protected static final String LABEL_URL = "MMS server URL:"; //$NON-NLS-1$
+	protected static final String LABEL_URL = "MMS Server URL:"; //$NON-NLS-1$
+	protected static final String LABEL_API = "MMS API Version:"; //$NON-NLS-1$
 	protected static final String LABEL_USER = "Username:"; //$NON-NLS-1$
 	protected static final String LABEL_PASS = "Password:"; //$NON-NLS-1$
-	
+
+	private static final String[] API_VERSIONS = new String[] { MMSServerDescriptor.API_VERSION_3, MMSServerDescriptor.API_VERSION_4 };
+
 	private UiHelper helper = UiHelper.getInstance();
 	private Text txtUrl;
 	private Text txtUser;
 	private Text txtPass;
+	private Combo cbApiVersion;
 	private String serverUrl;
 	private String username;
 	private String password;
+	private String apiVersion;
 	private MMSServerDescriptor serverConnectionData;
 	public final int numberOfColumns;
 
 	public MmsServerConnectionDataComposite(WizardPage containingPage, Composite parent, int style, int columnsInGrid, String lblConnectionTesterButton, List<Control> disablableControls, Consumer<MMSServerDescriptor> actionToExecuteAfterSuccessfulConnectionTest) {
 		super(parent, style);
+
 		numberOfColumns = columnsInGrid < LAYOUT_MINCOLUMNNUM ? LAYOUT_MINCOLUMNNUM : columnsInGrid;
 		GridLayout layout = new GridLayout();
 		this.setLayout(layout);
 		layout.numColumns = numberOfColumns;
-		
+
 		txtUrl = helper.createTextRow(containingPage, this, LABEL_URL, numberOfColumns, disablableControls);
 		txtUrl.setText(MmsUiPlugin.getDefault().getStoredMmsUrls()[0]);
-		new ContentProposalAdapter(txtUrl, new TextContentAdapter(), 
+		ContentProposalAdapter urlProposalAdapter = new ContentProposalAdapter(txtUrl, new TextContentAdapter(), 
 				new VariableContentProposalProvider() {
 					@Override
 					protected Collection<String> getPossibleValues() {
 						return Arrays.asList(MmsUiPlugin.getDefault().getStoredMmsUrls());
 					}
-				}, null, null).setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+				}, null, null);
+		urlProposalAdapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+		urlProposalAdapter.addContentProposalListener(new IContentProposalListener() {
+			@Override
+			public void proposalAccepted(IContentProposal proposal) {
+				// FIXME retrieve api version from stored server data and update combo box
+				System.out.println();
+			}
+		});
+
+		Label lbl = new Label(this, SWT.NONE);
+		lbl.setText(LABEL_API);
+		cbApiVersion = new Combo(this, SWT.READ_ONLY);
+		cbApiVersion.setItems(API_VERSIONS);
+		GridData gdFill = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gdFill.horizontalSpan = numberOfColumns - 1;
+		cbApiVersion.setLayoutData(gdFill);
+		cbApiVersion.select(1);
+
 		txtUser = helper.createTextRow(containingPage, this, LABEL_USER, numberOfColumns, disablableControls);
 		txtUser.setText(MmsUiPlugin.getDefault().getStoredMmsUsers()[0]);
 		new ContentProposalAdapter(txtUser, new TextContentAdapter(), 
@@ -84,23 +111,24 @@ public class MmsServerConnectionDataComposite extends Composite {
 				return Arrays.asList(MmsUiPlugin.getDefault().getStoredMmsUsers());
 			}
 		}, null, null).setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+
 		txtPass = helper.createTextRow(containingPage, this, LABEL_PASS, numberOfColumns, SWT.PASSWORD, disablableControls);
 		
 		// Fill the space before the button
 		Label lblFillBeforeButton = new Label(this, SWT.NONE);
-		GridData gdFill = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gdFill = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gdFill.horizontalSpan = numberOfColumns - 1;
 		lblFillBeforeButton.setLayoutData(gdFill);
+
 		Button btnTestConnection = new Button(this, SWT.PUSH);
 		btnTestConnection.setText(lblConnectionTesterButton);
 		btnTestConnection.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					boolean isLoginSuccessful = checkConnection();
 					if(isLoginSuccessful) {
-						serverConnectionData = new MMSServerDescriptor(serverUrl, MMSServerHelper.encodeBasicAuthData(username, password));
+						serverConnectionData = new MMSServerDescriptor(serverUrl, apiVersion, MMSServerHelper.encodeBasicAuthData(username, password));
 						actionToExecuteAfterSuccessfulConnectionTest.accept(serverConnectionData);
 					} else {
 						throw new MMSConnectionException(String.format(MSG__UNSUCCESSFUL_LOGIN, serverUrl));
@@ -124,14 +152,19 @@ public class MmsServerConnectionDataComposite extends Composite {
 
 	protected boolean checkConnection() {
 		serverUrl = txtUrl.getText();
+		apiVersion = API_VERSIONS[cbApiVersion.getSelectionIndex()];
 		username = txtUser.getText();
 		password = txtPass.getText();
-		String ticket = MMSServerHelper.login(serverUrl, username, password);
+		String ticket = MMSServerHelper.login(serverUrl, apiVersion, username, password);
 		return ticket != null && !ticket.isEmpty();
 	}
-	
+
 	public String getUrl() {
 		return serverUrl;
+	}
+
+	public String getAPIVersion() {
+		return apiVersion;
 	}
 	
 	public String getUser() {
@@ -144,6 +177,10 @@ public class MmsServerConnectionDataComposite extends Composite {
 	
 	public void setUrl(String url) {
 		txtUrl.setText(url);
+	}
+	
+	public void setAPIVersion(String apiVersion) {
+		cbApiVersion.setText(apiVersion);
 	}
 	
 	public void setUser(String user) {

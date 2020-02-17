@@ -18,11 +18,11 @@ public class MmsProjectConnectionData extends MmsConnectionData {
 	public final String refId;
 	
 	public MmsProjectConnectionData(MmsConnectionData connectionData, String projectId, String refId) {
-		this(connectionData.serverUrl, connectionData.autData, connectionData.orgId, projectId, refId);
+		this(connectionData.serverUrl, connectionData.apiVersion, connectionData.autData, connectionData.orgId, projectId, refId);
 	}
 	
-	public MmsProjectConnectionData(String serverUrl, String autData, String orgId, String projectId, String refId) {
-		super(serverUrl, autData, orgId);
+	public MmsProjectConnectionData(String serverUrl, String apiVersion, String autData, String orgId, String projectId, String refId) {
+		super(serverUrl, apiVersion, autData, orgId);
 		this.projectId = projectId;
 		this.refId = refId;
 	}

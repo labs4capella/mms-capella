@@ -121,31 +121,33 @@ public class MmsChildCreationWizard extends Wizard {
 						boolean valid = false;
 						MMSNamedDescriptor nd = null;
 						switch(childType) {
-						case Organization:
-							valid = serverHelper.getOrgs().stream()
-													.noneMatch(o -> o.id.contentEquals(id.getText()));
-							if(valid) {
-								nd = new MMSOrganizationDescriptor();
+							case Organization: {
+								valid = serverHelper.getOrgs().stream().noneMatch(o -> o.id.contentEquals(id.getText()));
+								if (valid) {
+									nd = new MMSOrganizationDescriptor();
+								}
+								break;
 							}
-							break;
-						case Project:
-							valid = serverHelper.getProjects().stream()
-													.noneMatch(p -> p.id.contentEquals(id.getText()));
-							if(valid) {
-								nd = new MMSProjectDescriptor();
+							case Project: {
+								MMSIdentifiableDescriptor parent = MmsChildCreationWizard.this.parent;
+								valid = serverHelper.getProjects(parent.id).stream().noneMatch(p -> p.id.contentEquals(id.getText()));
+								if (valid) {
+									nd = new MMSProjectDescriptor();
+								}
+								break;
 							}
-							break;
-						case Ref:
-							MMSIdentifiableDescriptor parent = MmsChildCreationWizard.this.parent;
-							valid = serverHelper.getBranches((parent instanceof MMSProjectDescriptor) ? ((MMSProjectDescriptor) parent).org : null, parent.id).stream()
-													.noneMatch(b -> b.id.contentEquals(id.getText()));
-							if(valid) {
-								nd = new MMSRefDescriptor();
+							case Ref: {
+								MMSIdentifiableDescriptor parent = MmsChildCreationWizard.this.parent;
+								valid = serverHelper.getBranches((parent instanceof MMSProjectDescriptor) ? ((MMSProjectDescriptor) parent).orgId : null, parent.id).stream()
+														.noneMatch(b -> b.id.contentEquals(id.getText()));
+								if (valid) {
+									nd = new MMSRefDescriptor();
+								}
+								break;
 							}
-							break;
 						}
-						
-						if(valid) {
+
+						if (valid) {
 							nd.id = id.getText();
 							nd.name = name.getText().matches(VALIDATION_PATTERN_NAME) ? id.getText() : name.getText();
 							preparedChild.set(nd);

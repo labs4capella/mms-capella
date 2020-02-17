@@ -14,19 +14,24 @@
 package com.thalesgroup.mde.openmbee.connector.mms.data;
 
 public class MMSServerDescriptor extends MMSNamedDescriptor {
-	
-	public MMSServerDescriptor(String url, String authData) {
-		this(url, url, authData);
+
+	public static final String API_VERSION_3 = "MMS 3.x"; //$NON-NLS-1$
+	public static final String API_VERSION_4 = "MMS 4"; //$NON-NLS-1$
+
+	public MMSServerDescriptor(String url, String version, String authData) {
+		this(url, url, version, authData);
 	}
 	
-	public MMSServerDescriptor(String name, String url, String autData) {
+	public MMSServerDescriptor(String name, String url, String version, String autData) {
 		this.id = url+autData;
 		this.url = url;
 		this.name = name;
+		this.apiVersion = version;
 		this.autData = autData;
 	}
 	
 	public String url;
+	public String apiVersion;
 	public String autData;
 	
 	@Override

@@ -98,14 +98,14 @@ public class EmfMmsModelElementDescriptorConverter implements MMSModelElementDes
 				}
 				EStructuralFeature esf = eClass.getEStructuralFeature(featureName);
 				if(esf==null && featureName.length()>2) {
-					if(featureName.endsWith("Id")) {
+					if(featureName.endsWith("Id")) { //$NON-NLS-1$
 						esf = eClass.getEStructuralFeature(featureName.substring(0, featureName.length()-2));
-					} else if(featureName.endsWith("Ids")) {
+					} else if(featureName.endsWith("Ids")) { //$NON-NLS-1$
 						esf = eClass.getEStructuralFeature(featureName.substring(0, featureName.length()-3));
 					}
 				}
 				if(esf == null) {
-					if(!featureName.startsWith("_")) MmsSiriusConnectorPlugin.getDefault().getLogger().warn(featureName);
+					if(!featureName.startsWith("_")) MmsSiriusConnectorPlugin.getDefault().getLogger().warn(featureName); //$NON-NLS-1$
 				} else if(esf.isChangeable() && !esf.isDerived() && !esf.isTransient() && !isOppositeOfContainmentReference(esf)) {
 					if(esf.isMany()) {
 						Object values = medAttribute.getValue();
@@ -378,7 +378,7 @@ public class EmfMmsModelElementDescriptorConverter implements MMSModelElementDes
 			if(id == null) {
 				id = EcoreUtil.getID(eobject);
 				String prefix = null;
-				String resourceId = "";
+				String resourceId = ""; //$NON-NLS-1$
 				if(eResource == null) {
 					resourceId = "NO_RESOURCE"+ID_SEPARATOR; //$NON-NLS-1$
 				} else {
@@ -398,7 +398,7 @@ public class EmfMmsModelElementDescriptorConverter implements MMSModelElementDes
 				
 				if ((id == null || id.length() == 0) && calculateQualifiedNameIfNecessary) {
 					EAttribute idFeature = eobject.eClass().getEAllAttributes().stream()
-														.filter(eattr -> "name".contentEquals(eattr.getName().toLowerCase()))
+														.filter(eattr -> "name".contentEquals(eattr.getName().toLowerCase())) //$NON-NLS-1$
 														.findFirst().orElse(null);
 					if(eobject.eContainer() != null) {
 						id = String.format("%s%s%s", getExternalId(eobject.eContainer(), calculateQualifiedNameIfNecessary, meds), //$NON-NLS-1$

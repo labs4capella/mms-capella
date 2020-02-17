@@ -38,12 +38,11 @@ public class RestApiHelper {
 	private String autData;
 	private String apiPrefix;
 
-	public RestApiHelper(String baseUrl, String ticket, String autData, boolean isMMS4API) {
+	public RestApiHelper(String baseUrl, String ticket, String autData, String apiPrefix) {
 		this.baseUrl = baseUrl;
 		//this.ticket = ticket;
 		this.autData = autData;
-		// MMS4 services API
-		this.apiPrefix = isMMS4API ? "api/" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+		this.apiPrefix = apiPrefix;
 	}
 
 	/**

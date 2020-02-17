@@ -104,7 +104,7 @@ public class MmsProjectCommitWizardPage extends ConnectMmsServerWizardPage {
 						projectDescriptor.clientSideName = projectDescriptor.name;
 					}
 					List<MMSRefDescriptor> refs = 
-							serverHelper.getBranches(projectDescriptor.org, projectDescriptor.id);
+							serverHelper.getBranches(projectDescriptor.orgId, projectDescriptor.id);
 					refSelector.setInput(refs);
 					refSelector.getCombo().setEnabled(true);
 				}

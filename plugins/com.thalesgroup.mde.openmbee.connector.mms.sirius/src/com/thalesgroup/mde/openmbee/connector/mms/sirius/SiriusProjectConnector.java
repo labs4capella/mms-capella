@@ -41,6 +41,7 @@ import com.thalesgroup.mde.openmbee.connector.fsmodel.filesystem.FilesystemPacka
 import com.thalesgroup.mde.openmbee.connector.mms.data.MMSConstants;
 import com.thalesgroup.mde.openmbee.connector.mms.data.MMSModelElementDescriptor;
 import com.thalesgroup.mde.openmbee.connector.mms.data.MMSProjectDescriptor;
+import com.thalesgroup.mde.openmbee.connector.mms.data.MMSServerDescriptor;
 import com.thalesgroup.mde.openmbee.connector.mms.sirius.utils.ProjectCreationException;
 import com.thalesgroup.mde.openmbee.connector.mms.utils.MMSServerHelper;
 
@@ -55,27 +56,33 @@ public class SiriusProjectConnector {
 	 */
 	private static final String MESSAGE__PROJECT_CORRUPTION = "No elements can be found for the project '%s' at the branch '%s'. Maybe it has been corrupted on the server '%s'."; //$NON-NLS-1$
 	private static final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
-	private static final String FILTER_TEMPLATE__HOLDING_BIN  = "holding_bin_%s"; //$NON-NLS-1$
-	private static final String FILTER_TEMPLATE__VIEW_INSTANCES_BIN  = "view_instances_bin_%s"; //$NON-NLS-1$
 	public static final String MESSAGE_CANCELLATION_EXPORT = "MMS export cancelled. Probably some elements have already been created on the server."; //$NON-NLS-1$
 	public static final String MESSAGE_CANCELLATION_IMPORT = "MMS import cancelled."; //$NON-NLS-1$
-	
-	public boolean toMms(String baseUrl, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String featurePrefix) throws InterruptedException {
-		return toMms(baseUrl, autData, organizationId, projectId, branchId, resources, "", featurePrefix); //$NON-NLS-1$
+
+	private static final String MMS3_FILTER_TEMPLATE__HOLDING_BIN  = "holding_bin_%s"; //$NON-NLS-1$
+	private static final String MMS3_FILTER_TEMPLATE__VIEW_INSTANCES_BIN  = "view_instances_bin_%s"; //$NON-NLS-1$
+
+	private static final String MMS4_FILTER__MODEL  = "model"; //$NON-NLS-1$
+	private static final String MMS4_FILTER__MBEE  = "__mbee__"; //$NON-NLS-1$
+	private static final String MMS4_FILTER__HOLDING_BIN  = "holding_bin"; //$NON-NLS-1$
+	private static final String MMS4_FILTER__UNDEFINED  = "undefined"; //$NON-NLS-1$
+
+	public boolean toMms(String baseUrl, String apiVersion, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String featurePrefix) throws InterruptedException {
+		return toMms(baseUrl, apiVersion, autData, organizationId, projectId, branchId, resources, "", featurePrefix); //$NON-NLS-1$
 	}
 	
-	public boolean toMms(String baseUrl, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix) throws InterruptedException {
-		return toMms(baseUrl, autData, organizationId, projectId, branchId, resources, commitComment, featurePrefix, new NullProgressMonitor());
+	public boolean toMms(String baseUrl, String apiVersion, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix) throws InterruptedException {
+		return toMms(baseUrl, apiVersion, autData, organizationId, projectId, branchId, resources, commitComment, featurePrefix, new NullProgressMonitor());
 	}
 	
-	public boolean toMms(String baseUrl, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix, IProgressMonitor monitor) throws InterruptedException {
+	public boolean toMms(String baseUrl, String apiVersion, String autData, String organizationId, String projectId, String branchId, Collection<Resource> resources, String commitComment, String featurePrefix, IProgressMonitor monitor) throws InterruptedException {
 		try {
 			// Convert structure
 			startNewSubTaskIfNotCancelled(monitor, "Convert project structure", MESSAGE_CANCELLATION_EXPORT); //$NON-NLS-1$
 			ProjectStructureConverter structureConverter = new ProjectStructureConverter();
 			Map<Resource, IFile> files = resources.stream().collect(Collectors.toMap(r -> r, r -> getFile(r)));
 			Map<IResource, MMSModelElementDescriptor> convertedFiles = 
-					structureConverter.toMMS(baseUrl, autData, projectId, branchId, featurePrefix, files.values());
+					structureConverter.toMMS(baseUrl, apiVersion, autData, projectId, branchId, featurePrefix, files.values());
 			monitor.worked(1);
 			
 			// Convert model elements
@@ -94,18 +101,20 @@ public class SiriusProjectConnector {
 				}
 			}
 			monitor.worked(1);
-			
-			
+
 			// Upload
 			startNewSubTaskIfNotCancelled(monitor, "Upload model to MMS (cannot be cancelled)", MESSAGE_CANCELLATION_EXPORT); //$NON-NLS-1$
-			MMSServerHelper serverHelper = new MMSServerHelper(baseUrl, autData);
+			MMSServerHelper serverHelper = new MMSServerHelper(baseUrl, apiVersion, autData);
 			List<MMSModelElementDescriptor> structureWithModelElements = Stream.concat(convertedFiles.values().stream(), 
 					convertedModelElements.values().stream())
 					.collect(Collectors.toList());
 			Set<String> idsOfStructureWithModelElements = structureWithModelElements.stream().map(med -> med.id).collect(Collectors.toSet());
-			List<String> filteredElements = Arrays.asList(projectId, 
-														String.format(FILTER_TEMPLATE__HOLDING_BIN, projectId), 
-														String.format(FILTER_TEMPLATE__VIEW_INSTANCES_BIN, projectId));
+			List<String> filteredElements = MMSServerDescriptor.API_VERSION_4.equals(apiVersion) ?
+				Arrays.asList(projectId, MMS4_FILTER__MODEL, MMS4_FILTER__MBEE, MMS4_FILTER__HOLDING_BIN, String.format(MMS4_FILTER__UNDEFINED)) :
+				Arrays.asList(projectId,
+					String.format(MMS3_FILTER_TEMPLATE__HOLDING_BIN, projectId),
+					String.format(MMS3_FILTER_TEMPLATE__VIEW_INSTANCES_BIN, projectId));
+
 			// Calculate the removable elements
 			List<MMSModelElementDescriptor> removables = serverHelper.getModelElements(organizationId, projectId, branchId).stream()
 																	.filter(med -> {
@@ -116,7 +125,7 @@ public class SiriusProjectConnector {
 																		// If something is not available in the current elements it needs to be removed
 																		return !idsOfStructureWithModelElements.contains(med.id);
 																	}).collect(Collectors.toList());
-			if(removables.size() > 0) {
+			if (removables.size() > 0) {
 				// Delete the locally removed elements from the server
 				if(!serverHelper.removeModelElements(organizationId, projectId, branchId, String.format(MESSAGE__DELETE_COMMIT, commitComment), removables)) {
 					throw new InterruptedException(MESSAGE__UNSUCCESSFUL_DELETE);
@@ -125,7 +134,8 @@ public class SiriusProjectConnector {
 			monitor.worked(1);
 			
 			List<MMSModelElementDescriptor> createdOnServer = 
-					serverHelper.createModelElements(projectId, 
+					serverHelper.createModelElements(organizationId,
+													projectId, 
 													branchId, 
 													removables.size() > 0 ? String.format(MESSAGE__UPDATE_COMMIT, commitComment) : commitComment, 
 													structureWithModelElements);
@@ -154,18 +164,18 @@ public class SiriusProjectConnector {
 		return wsRoot.getFile(new Path(res.getURI().toPlatformString(true)));
 	}
 	
-	public boolean fromMms(String baseUrl, String autData, String projectId, String branchId) throws InterruptedException {
-		return fromMms(baseUrl, autData, projectId, branchId, null, null, new NullProgressMonitor());
+	public boolean fromMms(String baseUrl, String apiVersion, String autData, String projectId, String branchId) throws InterruptedException {
+		return fromMms(baseUrl, apiVersion, autData, projectId, branchId, null, null, new NullProgressMonitor());
 	}
 	
-	public boolean fromMms(String baseUrl, String autData, String projectId, String branchId, String commitId, String projectName, IProgressMonitor monitor) throws InterruptedException {
+	public boolean fromMms(String baseUrl, String apiVersion, String autData, String projectId, String branchId, String commitId, String projectName, IProgressMonitor monitor) throws InterruptedException {
 		boolean success = false;
 		List<MMSModelElementDescriptor> elements = null;
-		MMSServerHelper serverHelper = new MMSServerHelper(baseUrl, autData);
+		MMSServerHelper serverHelper = new MMSServerHelper(baseUrl, apiVersion, autData);
 		try {
 			startNewSubTaskIfNotCancelled(monitor, "Download data from MMS", MESSAGE_CANCELLATION_IMPORT); //$NON-NLS-1$
-			String holdingBinFilter = String.format(FILTER_TEMPLATE__HOLDING_BIN, projectId);
-			String viewInstancesBinFilter = String.format(FILTER_TEMPLATE__VIEW_INSTANCES_BIN, projectId);
+			String holdingBinFilter = String.format(MMS3_FILTER_TEMPLATE__HOLDING_BIN, projectId);
+			String viewInstancesBinFilter = String.format(MMS3_FILTER_TEMPLATE__VIEW_INSTANCES_BIN, projectId);
 			elements = serverHelper.getModelElements(projectId, branchId, commitId);
 			elements = elements.stream().filter(e -> !holdingBinFilter.contentEquals(e.id) && !viewInstancesBinFilter.contentEquals(e.id) ).collect(Collectors.toList());
 			monitor.worked(1);
@@ -179,7 +189,7 @@ public class SiriusProjectConnector {
 				elements.remove(projectDescriptor);
 			} else {
 				try {
-					projectDescriptor = serverHelper.getModelElement(projectId, branchId, projectId, null).get(0);
+					projectDescriptor = serverHelper.getModelElement(projectId, branchId, projectId).get(0);
 				} catch (IndexOutOfBoundsException e) {
 					throw new InterruptedException("Project descriptor cannot be found on the server."); //$NON-NLS-1$
 				}

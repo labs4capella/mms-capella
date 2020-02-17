@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -28,145 +27,85 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.JsonSyntaxException;
 
 public class MMSJsonHelper {
 
-	public static List<MMSOrganizationDescriptor> readOrganizationsFromJson(String json) {
-		List<MMSOrganizationDescriptor> orgs = new ArrayList<>();
-		try {
-			MMSRootDescriptor root = readRootFromJson(json);
-			for (MMSOrganizationDescriptor element : root.orgs) {
-				orgs.add(element);
-			}
-		} catch (JsonSyntaxException ex) {
-			// MMS4 data structure
-			MMSOrganizationDescriptor[] orgsArray = readOrganizationsFromJsonArray(json);
-			return Arrays.asList(orgsArray);
+	public static String readTokenFromJson(String apiVersion, String json) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return MMS3JsonHelper.readTokenFromJson(json);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			return MMS4JsonHelper.readTokenFromJson(json);
 		}
-		return orgs;
+		return ""; //$NON-NLS-1$
 	}
 
-	public static List<MMSProjectDescriptor> readProjectsFromJson(String json) {
-		List<MMSProjectDescriptor> projects = new ArrayList<>();
-		try {
-			MMSRootDescriptor root = readRootFromJson(json);
-			for (MMSProjectDescriptor element : root.projects) {
-				projects.add(element);
-			}
-		} catch (JsonSyntaxException ex) {
-			// MMS4 data structure
-			MMSProjectDescriptor[] projectsArray = readProjectsFromJsonArray(json);
-			return Arrays.asList(projectsArray);
+	public static List<MMSOrganizationDescriptor> readOrganizationsFromJson(String apiVersion, String json) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return MMS3JsonHelper.readOrganizationsFromJson(json);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			return MMS4JsonHelper.readOrganizationsFromJson(json);
 		}
-		return projects;
+		return Collections.emptyList();
 	}
 
-	public static List<MMSRefDescriptor> readBranchesFromJson(String json) {
-		List<MMSRefDescriptor> refs = new ArrayList<>();
-		try {
-			MMSRootDescriptor root = readRootFromJson(json);
-			for (MMSRefDescriptor element : root.refs) {
-				refs.add(element);
-			}
-		} catch (JsonSyntaxException ex) {
-			// MMS4 data structure
-			MMSRefDescriptor[] refsArray = readBranchesFromJsonArray(json);
-			return Arrays.asList(refsArray);
+	public static List<MMSProjectDescriptor> readProjectsFromJson(String apiVersion, String json) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return MMS3JsonHelper.readProjectsFromJson(json);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			return MMS4JsonHelper.readProjectsFromJson(json);
 		}
-		return refs;
+		return Collections.emptyList();
 	}
 
-	public static List<MMSCommitDescriptor> readCommitsFromJson(String json) {
-		List<MMSCommitDescriptor> commits = new ArrayList<>();
-		try {
-			MMSRootDescriptor root = readRootFromJson(json);
-			for (MMSCommitDescriptor element : root.commits) {
-				commits.add(element);
-			}
-		} catch (JsonSyntaxException ex) {
-			// MMS4 data structure
-			MMSCommitDescriptor[] commitsArray = readCommitsFromJsonArray(json);
-			return Arrays.asList(commitsArray);
+	public static List<MMSRefDescriptor> readBranchesFromJson(String apiVersion, String json) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return MMS3JsonHelper.readBranchesFromJson(json);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			return MMS4JsonHelper.readBranchesFromJson(json);
 		}
-		return commits;
+		return Collections.emptyList();
 	}
 
-	public static List<MMSModelElementDescriptor> readElementsFromJson(String json) {
-		List<MMSModelElementDescriptor> elements = new ArrayList<>();
-		try {
-			MMSRootDescriptor root = readRootFromJson(json);
-			for (MMSModelElementDescriptor element : root.elements) {
-				elements.add(element);
-			}
-		} catch (JsonSyntaxException ex) {
-			// MMS4 data structure
-			MMSModelElementDescriptor[] elementsArray = readElementsFromJsonArray(json);
-			return Arrays.asList(elementsArray);
+	public static List<MMSCommitDescriptor> readCommitsFromJson(String apiVersion, String json) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return MMS3JsonHelper.readCommitsFromJson(json);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			return MMS4JsonHelper.readCommitsFromJson(json);
 		}
-		return elements;
+		return Collections.emptyList();
+	}
+
+	public static List<MMSModelElementDescriptor> readElementsFromJson(String apiVersion, String json) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return MMS3JsonHelper.readElementsFromJson(json);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			return MMS4JsonHelper.readElementsFromJson(json);
+		}
+		return Collections.emptyList();
 	}
 
 	public static MMSRootDescriptor readRootFromJson(String json) {
 		try(Reader reader = new StringReader(json)) {
-			Gson gson = getPreparedGsonBuilder().create();
+			Gson gson = getMMS3PreparedGsonBuilder().create();
 			return gson.fromJson(reader, MMSRootDescriptor.class);
 		} catch (IOException e) {
 			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
 		}
 	}
 
-	public static MMSOrganizationDescriptor[] readOrganizationsFromJsonArray(String json) {
-		try(Reader reader = new StringReader(json)) {
-			Gson gson = getPreparedGsonBuilder().create();
-			return gson.fromJson(reader, MMSOrganizationDescriptor[].class);
-		} catch (IOException e) {
-			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
-		}
-	}
-
-	public static MMSProjectDescriptor[] readProjectsFromJsonArray(String json) {
-		try(Reader reader = new StringReader(json)) {
-			Gson gson = getPreparedGsonBuilder().create();
-			return gson.fromJson(reader, MMSProjectDescriptor[].class);
-		} catch (IOException e) {
-			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
-		}
-	}
-
-	public static MMSRefDescriptor[] readBranchesFromJsonArray(String json) {
-		try(Reader reader = new StringReader(json)) {
-			Gson gson = getPreparedGsonBuilder().create();
-			return gson.fromJson(reader, MMSRefDescriptor[].class);
-		} catch (IOException e) {
-			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
-		}
-	}
-
-	public static MMSCommitDescriptor[] readCommitsFromJsonArray(String json) {
-		try(Reader reader = new StringReader(json)) {
-			Gson gson = getPreparedGsonBuilder().create();
-			return gson.fromJson(reader, MMSCommitDescriptor[].class);
-		} catch (IOException e) {
-			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
-		}
-	}
-
-	public static MMSModelElementDescriptor[] readElementsFromJsonArray(String json) {
-		try(Reader reader = new StringReader(json)) {
-			Gson gson = getPreparedGsonBuilder().create();
-			return gson.fromJson(reader, MMSModelElementDescriptor[].class);
-		} catch (IOException e) {
-			throw new RuntimeException(String.format("Cannot read the given json:%s%s", System.lineSeparator(), json), e); //$NON-NLS-1$
-		}
-	}
-
-	public static GsonBuilder getPreparedGsonBuilder() {
+	public static GsonBuilder getMMS3PreparedGsonBuilder() {
 		return new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new SkipEmptyCollectionsSerializer())
-								.registerTypeAdapter(MMSModelElementDescriptor.class, new MMSModelElementDescriptor.JsonTypeAdapter());
+								.registerTypeAdapter(MMSModelElementDescriptor.class, new MMSModelElementDescriptor.JsonMMS3TypeAdapter())
+								.registerTypeAdapter(MMSProjectDescriptor.class, new MMSProjectDescriptor.JsonMMS3TypeAdapter());
+	}
+
+	public static GsonBuilder getMMS4PreparedGsonBuilder() {
+		return new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new SkipEmptyCollectionsSerializer())
+								.registerTypeAdapter(MMSModelElementDescriptor.class, new MMSModelElementDescriptor.JsonMMS4TypeAdapter())
+								.registerTypeAdapter(MMSProjectDescriptor.class, new MMSProjectDescriptor.JsonMMS4TypeAdapter());
 	}
 	
-	public static class SkipEmptyCollectionsSerializer implements JsonSerializer<Collection<?>> {
+	private static class SkipEmptyCollectionsSerializer implements JsonSerializer<Collection<?>> {
 
 		@Override
 		public JsonElement serialize(Collection<?> src, Type typeOfSrc, JsonSerializationContext context) {

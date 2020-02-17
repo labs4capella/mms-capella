@@ -15,11 +15,13 @@ package com.thalesgroup.mde.openmbee.connector.mms.sirius.ui.data;
 
 public class MmsConnectionData {
 	public final String serverUrl;
+	public final String apiVersion;
 	public final String autData;
 	public final String orgId;
 	
-	public MmsConnectionData(String serverUrl, String autData, String orgId) {
+	public MmsConnectionData(String serverUrl, String apiVersion, String autData, String orgId) {
 		this.serverUrl = serverUrl;
+		this.apiVersion = apiVersion;
 		this.autData = autData;
 		this.orgId = orgId;
 	}

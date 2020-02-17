@@ -37,6 +37,7 @@ public class MmsServerConnectionUpdateWizard extends MmsServerConnectionWizard {
 		} catch (IllegalArgumentException e) {}
 		connectionPage.setDefaultName(server.name);
 		connectionPage.setDefaultUrl(server.url);
+		connectionPage.setDefaultAPIVersion(server.apiVersion);
 	}
 	
 	@Override
@@ -44,7 +45,9 @@ public class MmsServerConnectionUpdateWizard extends MmsServerConnectionWizard {
 		MMSServerDescriptor connectionData = connectionPage.getConnectionData();
 		boolean success = connectionData != null;
 		if(success) {
-			connectionDataModified = !server.url.contentEquals(connectionData.url) || 
+			connectionDataModified = !server.url.contentEquals(connectionData.url) ||
+									server.apiVersion == null ||
+									!server.apiVersion.contentEquals(connectionData.apiVersion) ||
 									!server.autData.contentEquals(connectionData.autData);
 			success =  connectionDataModified || !server.name.contentEquals(connectionData.name);
 			if(success) {
@@ -56,6 +59,7 @@ public class MmsServerConnectionUpdateWizard extends MmsServerConnectionWizard {
 				plugin.removeStoredMMSServerDescriptor(server);
 				server.id = connectionData.id;
 				server.url = connectionData.url;
+				server.apiVersion = connectionData.apiVersion;
 				server.autData = connectionData.autData;
 				server.name = connectionData.name;
 				plugin.addStoredMMSServerDescriptor(server);

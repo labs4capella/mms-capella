@@ -96,7 +96,7 @@ public class MmsProjectVersionSelectionWizardPage extends ConnectMmsServerWizard
 						projectDescriptor.clientSideName = projectDescriptor.name;
 					}
 					List<MMSRefDescriptor> refs = 
-							serverHelper.getBranches(projectDescriptor.org, projectDescriptor.id);
+							serverHelper.getBranches(projectDescriptor.orgId, projectDescriptor.id);
 					refSelector.setInput(refs);
 					refSelector.getCombo().setEnabled(true);
 					commitSelector.getCombo().setEnabled(false);
@@ -127,7 +127,7 @@ public class MmsProjectVersionSelectionWizardPage extends ConnectMmsServerWizard
 				Object selectedRef = getSelectedElement(refSelector);
 				if(selectedProject instanceof MMSProjectDescriptor && selectedRef instanceof MMSRefDescriptor) {
 					List<MMSCommitDescriptor> commits = serverHelper.getCommits(
-																		((MMSProjectDescriptor)selectedProject).org, 
+																		((MMSProjectDescriptor)selectedProject).orgId, 
 																		((MMSProjectDescriptor)selectedProject).id, 
 																		((MMSRefDescriptor)selectedRef).id);
 					commitSelector.setInput(commits);

@@ -36,6 +36,7 @@ public class MmsServerConnectionPage extends WizardPage {
 	private Text serverName;
 	private String defaultName = null;
 	private String defaultUrl = null;
+	private String defaultAPIVersion = null;
 	private String defaultUser = null;
 	private String defaultPassword = null;
 
@@ -67,6 +68,9 @@ public class MmsServerConnectionPage extends WizardPage {
 		if(defaultUrl != null) {
 			connection.setUrl(defaultUrl);
 		}
+		if(defaultAPIVersion != null) {
+			connection.setAPIVersion(defaultAPIVersion);
+		}
 		if(defaultUser != null) {
 			connection.setUser(defaultUser);
 		}
@@ -88,6 +92,10 @@ public class MmsServerConnectionPage extends WizardPage {
 	public String getUrl() {
 		return connection.getUrl();
 	}
+
+	public String getAPIVersion() {
+		return connection.getAPIVersion();
+	}
 	
 	public String getUser() {
 		return connection.getUser();
@@ -99,6 +107,10 @@ public class MmsServerConnectionPage extends WizardPage {
 
 	public void setDefaultUrl(String url) {
 		defaultUrl = url;
+	}
+
+	public void setDefaultAPIVersion(String apiVersion) {
+		defaultAPIVersion = apiVersion;
 	}
 	
 	public void setDefaultUser(String user) {
