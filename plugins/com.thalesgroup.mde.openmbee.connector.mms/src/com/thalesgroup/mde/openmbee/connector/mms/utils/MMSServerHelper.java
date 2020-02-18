@@ -370,7 +370,7 @@ public class MMSServerHelper {
 			String json = tryToExecuteAndGetContentAsString(request);
 			return readCommitsFromJson(apiVersion, json);
 		} catch (IOException e) {
-			throw new MMSConnectionException(String.format("Cannot query commits from the '%s' barnch of '%s' project from %s", branchId, projectId, baseUrl), e); //$NON-NLS-1$
+			throw new MMSConnectionException(String.format("Cannot query commits from the '%s' branch of '%s' project from %s", branchId, projectId, baseUrl), e); //$NON-NLS-1$
 		}
 	}
 

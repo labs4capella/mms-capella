@@ -75,8 +75,9 @@ public class MMSProjectDescriptor extends MMSNamedDescriptor {
 		public MMSProjectDescriptor deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 			MMSProjectDescriptor desc = gson.fromJson(json, MMSProjectDescriptor.class);
 			desc.orgId = ((JsonObject) json).get("org").getAsString(); //$NON-NLS-1$
-			desc.clientSideName = ((JsonObject) json).get("custom").getAsJsonObject().get("clientSideName").getAsString(); //$NON-NLS-1$ //$NON-NLS-2$
-			desc.featurePrefix = ((JsonObject) json).get("custom").getAsJsonObject().get("featurePrefix").getAsString(); //$NON-NLS-1$ //$NON-NLS-2$
+			JsonObject custom = ((JsonObject) json).get("custom").getAsJsonObject(); //$NON-NLS-1$
+			desc.clientSideName = custom.has("clientSideName") ? custom.get("clientSideName").getAsString() : null; //$NON-NLS-1$ //$NON-NLS-2$
+			desc.featurePrefix = custom.has("featurePrefix") ? custom.get("featurePrefix").getAsString() : null; //$NON-NLS-1$ //$NON-NLS-2$
 			return desc;
 		}
 
