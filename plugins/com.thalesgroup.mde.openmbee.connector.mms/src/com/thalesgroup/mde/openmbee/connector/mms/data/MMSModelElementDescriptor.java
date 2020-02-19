@@ -237,6 +237,8 @@ public class MMSModelElementDescriptor extends MMSIdentifiableDescriptor {
 			serialized.addProperty("id", desc.msiDescriptor.id); //$NON-NLS-1$
 			String name = (String) desc.msiDescriptor.attributes.get("EMF_FEATURE__name"); //$NON-NLS-1$
 			serialized.addProperty("name", name != null ? name : ""); //$NON-NLS-1$ //$NON-NLS-2$
+			String description = (String) desc.msiDescriptor.attributes.get("EMF_FEATURE__description"); //$NON-NLS-1$
+			serialized.addProperty("documentation", description != null ? description : ""); //$NON-NLS-1$ //$NON-NLS-2$
 			serialized.addProperty("type", desc.msiDescriptor.type); //$NON-NLS-1$
 			JsonObject msinfo = gson.toJsonTree(desc.msiDescriptor, MMSMSInfoDescriptor.class).getAsJsonObject();
 			serialized.add("custom", msinfo); //$NON-NLS-1$
