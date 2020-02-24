@@ -71,14 +71,14 @@ public class RestApiHelper {
 	
 	public Request preparePost(String urlPostfix, Object... params) {
 		String postfix = preparePostfix(urlPostfix, params);
-		Request get = Request.Post(baseUrl+postfix);
-		return addAuthHeader(get);
+		Request post = Request.Post(baseUrl+postfix);
+		return addAuthHeader(post);
 	}
 	
 	public DeleteRequestWithBody prepareDelete(String urlPostfix, Object... params) {
 		String postfix = preparePostfix(urlPostfix, params);
-		DeleteRequestWithBody get = DeleteRequestWithBody.Delete(baseUrl+postfix);
-		return addAuthHeader(get);
+		DeleteRequestWithBody delete = DeleteRequestWithBody.Delete(baseUrl+postfix);
+		return addAuthHeader(delete);
 	}
 	
 	/**

@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
@@ -374,9 +375,10 @@ public class MMSServerHelper {
 		}
 	}
 
-	public boolean removeBranch(MMSRefDescriptor ref) {
+	public boolean removeBranch(String projectId, MMSRefDescriptor ref) {
 		try {
-			int statusCode = MMSAPIHelper.deleteBranches(restHelper, apiVersion, null, ref._projectId, ref.id).execute().returnResponse().getStatusLine().getStatusCode();
+			HttpResponse response = MMSAPIHelper.deleteBranches(restHelper, apiVersion, null, projectId, ref.id).execute().returnResponse();
+			int statusCode = response.getStatusLine().getStatusCode();
 			return 200 == statusCode;
 		} catch (IOException e) {
 			e.printStackTrace();

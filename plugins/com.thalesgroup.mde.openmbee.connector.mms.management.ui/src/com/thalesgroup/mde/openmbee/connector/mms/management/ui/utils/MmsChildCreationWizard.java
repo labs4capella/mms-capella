@@ -175,7 +175,7 @@ public class MmsChildCreationWizard extends Wizard {
 			created = serverHelper.createProject(parent.id, preparedChild.get().id, preparedChild.get().name);
 			break;
 		case Ref:
-			created = serverHelper.createBranch(parent.id, preparedChild.get().id, preparedChild.get().name, parentRefId);
+			created = serverHelper.createBranch(((MMSProjectDescriptor) parent).orgId, parent.id, preparedChild.get().id, preparedChild.get().name, parentRefId);
 			break;
 		}
 		if(created != null) {
