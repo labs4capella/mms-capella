@@ -387,9 +387,9 @@ public class MMSServerHelper {
 	/*********************************************************************************************
 	 ******************************  Model element handler features ******************************
 	 *********************************************************************************************/
-	public List<MMSModelElementDescriptor> getModelElement(String projectId, String branchId, String elementId) throws MMSConnectionException {
+	public List<MMSModelElementDescriptor> getModelElement(String organizationId, String projectId, String branchId, String elementId) throws MMSConnectionException {
 		try {
-			Request request = MMSAPIHelper.getElement(restHelper, apiVersion, null, projectId, branchId, elementId);
+			Request request = MMSAPIHelper.getElement(restHelper, apiVersion, organizationId, projectId, branchId, elementId);
 			String json = tryToExecuteAndGetContentAsString(request);
 			return readElementsFromJson(apiVersion, json);
 		} catch (IOException e) {
@@ -400,6 +400,19 @@ public class MMSServerHelper {
 	public List<MMSModelElementDescriptor> getModelElements(String organizationId, String projectId, String branchId) throws MMSConnectionException {
 		try {
 			Request request = MMSAPIHelper.getElements(restHelper, apiVersion, organizationId, projectId, branchId);
+			String json = tryToExecuteAndGetContentAsString(request);
+			return readElementsFromJson(apiVersion, json);
+		} catch (IOException e) {
+			throw new MMSConnectionException(String.format("Cannot query branches of '%s' project from %s", projectId, baseUrl), e); //$NON-NLS-1$
+		}
+	}
+
+	public List<MMSModelElementDescriptor> getModelElements(String organizationId, String projectId, String branchId, String commitId) throws MMSConnectionException {
+		if(commitId==null) {
+			return getModelElements(organizationId, projectId, branchId);
+		}
+		try {
+			Request request = MMSAPIHelper.getElements(restHelper, apiVersion, organizationId, projectId, branchId, commitId);
 			String json = tryToExecuteAndGetContentAsString(request);
 			return readElementsFromJson(apiVersion, json);
 		} catch (IOException e) {

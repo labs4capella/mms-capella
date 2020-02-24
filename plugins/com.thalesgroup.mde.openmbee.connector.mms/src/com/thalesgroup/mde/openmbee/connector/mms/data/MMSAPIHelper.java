@@ -39,6 +39,7 @@ public class MMSAPIHelper {
 	private static final String URL_POSTFIX__MMS3__BRANCHES_BY_ID = "projects/%s/refs/%s"; //$NON-NLS-1$
 	private static final String URL_POSTFIX__MMS3__COMMITS = "projects/%s/refs/%s/commits"; //$NON-NLS-1$
 	private static final String URL_POSTFIX__MMS3__ELEMENTS = "projects/%s/refs/%s/elements"; //$NON-NLS-1$
+	private static final String URL_POSTFIX__MMS3__ELEMENTS_BY_COMMIT_ID = "projects/%s/refs/%s/elements?commitId=%s"; //$NON-NLS-1$
 	private static final String URL_POSTFIX__MMS3__ELEMENTS_BY_ID = "projects/%s/refs/%s/elements/%s"; //$NON-NLS-1$
 
 	private static final String URL_POSTFIX__MMS4__PROJECTS = "orgs/%s/projects"; //$NON-NLS-1$
@@ -261,6 +262,25 @@ public class MMSAPIHelper {
 			return helper.prepareGet(URL_POSTFIX__MMS3__ELEMENTS, projectId, branchId);
 		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
 			return helper.prepareGet(URL_POSTFIX__MMS4__ELEMENTS, organizationId, projectId, branchId);
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves all the elements related to a given branch, within a given project and a given organization
+	 * @param helper REST API helper
+	 * @param apiVersion MMS API version
+	 * @param organizationId organization identifier
+	 * @param projectId project identifier
+	 * @param branchId branch identifier
+	 * @param commitId commit identifier
+	 * @return the built HTTP request, or null if the API version is not handled
+	 */
+	public static Request getElements(RestApiHelper helper, String apiVersion, String organizationId, String projectId, String branchId, String commitId) {
+		if (MMSServerDescriptor.API_VERSION_3.equals(apiVersion)) {
+			return helper.prepareGet(URL_POSTFIX__MMS3__ELEMENTS_BY_COMMIT_ID, projectId, branchId, commitId);
+		} else if (MMSServerDescriptor.API_VERSION_4.equals(apiVersion)) {
+			// FIXME not implemented yet
 		}
 		return null;
 	}

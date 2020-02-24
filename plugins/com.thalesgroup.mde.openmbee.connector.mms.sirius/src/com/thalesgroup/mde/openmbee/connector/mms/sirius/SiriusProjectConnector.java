@@ -164,11 +164,11 @@ public class SiriusProjectConnector {
 		return wsRoot.getFile(new Path(res.getURI().toPlatformString(true)));
 	}
 	
-	public boolean fromMms(String baseUrl, String apiVersion, String autData, String projectId, String branchId) throws InterruptedException {
-		return fromMms(baseUrl, apiVersion, autData, projectId, branchId, null, null, new NullProgressMonitor());
+	public boolean fromMms(String baseUrl, String apiVersion, String autData, String organizationId, String projectId, String branchId) throws InterruptedException {
+		return fromMms(baseUrl, apiVersion, autData, organizationId, projectId, branchId, null, null, new NullProgressMonitor());
 	}
 	
-	public boolean fromMms(String baseUrl, String apiVersion, String autData, String projectId, String branchId, String commitId, String projectName, IProgressMonitor monitor) throws InterruptedException {
+	public boolean fromMms(String baseUrl, String apiVersion, String autData, String organizationId, String projectId, String branchId, String commitId, String projectName, IProgressMonitor monitor) throws InterruptedException {
 		boolean success = false;
 		List<MMSModelElementDescriptor> elements = null;
 		MMSServerHelper serverHelper = new MMSServerHelper(baseUrl, apiVersion, autData);
@@ -176,7 +176,7 @@ public class SiriusProjectConnector {
 			startNewSubTaskIfNotCancelled(monitor, "Download data from MMS", MESSAGE_CANCELLATION_IMPORT); //$NON-NLS-1$
 			String holdingBinFilter = String.format(MMS3_FILTER_TEMPLATE__HOLDING_BIN, projectId);
 			String viewInstancesBinFilter = String.format(MMS3_FILTER_TEMPLATE__VIEW_INSTANCES_BIN, projectId);
-			elements = serverHelper.getModelElements(projectId, branchId, commitId);
+			elements = serverHelper.getModelElements(organizationId, projectId, branchId, commitId);
 			elements = elements.stream().filter(e -> !holdingBinFilter.contentEquals(e.id) && !viewInstancesBinFilter.contentEquals(e.id) ).collect(Collectors.toList());
 			monitor.worked(1);
 		} catch (MMSServerHelper.MMSConnectionException e) {
@@ -189,7 +189,7 @@ public class SiriusProjectConnector {
 				elements.remove(projectDescriptor);
 			} else {
 				try {
-					projectDescriptor = serverHelper.getModelElement(projectId, branchId, projectId).get(0);
+					projectDescriptor = serverHelper.getModelElement(organizationId, projectId, branchId, projectId).get(0);
 				} catch (IndexOutOfBoundsException e) {
 					throw new InterruptedException("Project descriptor cannot be found on the server."); //$NON-NLS-1$
 				}
