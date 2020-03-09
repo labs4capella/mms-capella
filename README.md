@@ -12,9 +12,14 @@ This connector integrates the Open Source [Capella](https://www.eclipse.org/cape
 - [x] Push data from Capella to an MMS Repository
 - [x] Pull data from an MMS Repository to Capella 
 - [x] Manage versions and branches
-- [x] Supports MMS 3.x
+- [x] Supports MMS 3.x <sup>[\[3\]](#References)</sup>
+- [x] Supports Capella 1.3.x <sup>[\[4\]](#References)</sup>
 
 ![MMS Connector](docs/mms-connector-capella.png)
+
+## Installation Guide
+
+The installation guide can be found [here](docs/installation-guide.md).
 
 ## User Quick Start Guide
 
@@ -29,3 +34,7 @@ The developer guide can be found [here](docs/developer-guide.md#_prepare_eclipse
 \[1\] : [https://github.com/eclipse/capella](https://github.com/eclipse/capella)
 
 \[2\] : [https://github.com/Open-MBEE](https://github.com/Open-MBEE)
+
+\[3\] : Support for MMS 4 is currently under development, a specific branch has been created for that
+
+\[4\] : Although the connector has been fully tested with Capella 1.3.x only, it might work with other major versions of Capella (if it doesn't, please let us known and open an [issue](https://github.com/open-mbee/mms-capella/issues))
