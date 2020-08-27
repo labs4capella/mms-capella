@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/mms-capella
+    docker:
+      - image: circleci/openjdk:8u252-jdk
+    steps:
+      - checkout
+      - run: mvn clean package
+      - store_artifacts:
+          path: releng/com.thalesgroup.mde.openmbee.connector.mms.site/target/com.thalesgroup.mde.openmbee.connector.mms.site-1.0.0-SNAPSHOT.zip
+      - persist_to_workspace:
+          root: releng/com.thalesgroup.mde.openmbee.connector.mms.site/target
+          paths:
+            - com.thalesgroup.mde.openmbee.connector.mms.site-1.0.0-SNAPSHOT.zip
+
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: artifacts
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=1.0.0-SNAPSHOT
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} artifacts/com.thalesgroup.mde.openmbee.connector.mms.site-${VERSION}.zip
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build
+      - publish-github-release:
+          requires:
+            - build
