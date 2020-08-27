@@ -10,16 +10,16 @@ jobs:
       - store_artifacts:
           path: releng/com.thalesgroup.mde.openmbee.connector.mms.site/target/com.thalesgroup.mde.openmbee.connector.mms.site-1.0.0-SNAPSHOT.zip
       - persist_to_workspace:
-          root: artifacts
+          root: releng/com.thalesgroup.mde.openmbee.connector.mms.site/target
           paths:
-            - releng/com.thalesgroup.mde.openmbee.connector.mms.site/target/com.thalesgroup.mde.openmbee.connector.mms.site-1.0.0-SNAPSHOT.zip
+            - com.thalesgroup.mde.openmbee.connector.mms.site-1.0.0-SNAPSHOT.zip
 
   publish-github-release:
     docker:
       - image: cibuilds/github:0.10
     steps:
       - attach_workspace:
-          at: ~/mms-capella/artifacts
+          at: artifacts
       - run:
           name: "Publish Release on GitHub"
           command: |
