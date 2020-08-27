@@ -37,4 +37,4 @@ The developer guide can be found [here](docs/developer-guide.md#_prepare_eclipse
 
 \[3\] : Support for MCF is currently under development, a specific branch has been created for that
 
-\[4\] : Although the connector has been fully tested with Capella 1.3.x only, it might work with other major versions of Capella (if it doesn't, please let us known and open an [issue](https://github.com/open-mbee/mms-capella/issues))
+\[4\] : Although the connector has been fully tested with Capella 1.3.x only, it should work with other major versions of Capella (if it doesn't, please let us known and open an [issue](https://github.com/open-mbee/mms-capella/issues))
