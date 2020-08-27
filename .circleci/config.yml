@@ -10,3 +10,5 @@ jobs:
     steps:
       - checkout
       - run: mvn clean package
+      - store_artifacts:
+        path: ~/mms-capella/releng/com.thalesgroup.mde.openmbee.connector.mms.site/target/mms-capella-*.zip
