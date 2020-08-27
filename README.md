@@ -1,5 +1,5 @@
-![](https://img.shields.io/badge/License-EPL%202.0-red.svg)
-![](https://travis-ci.org/j-barata/mms-capella.svg?branch=master)
+[![CircleCI](https://circleci.com/gh/labs4capella/mms-capella.svg?style=shield)](https://circleci.com/gh/labs4capella/mms-capella)
+![GitHub](https://img.shields.io/github/license/labs4capella/mms-capella.svg?color=blue)
 
 <img align="right" width="160" height="110" src="docs/openmbee-capella.png" alt="OpenMBEE"/>
 
@@ -35,6 +35,6 @@ The developer guide can be found [here](docs/developer-guide.md#_prepare_eclipse
 
 \[2\] : [https://github.com/Open-MBEE](https://github.com/Open-MBEE)
 
-\[3\] : Support for MMS 4 is currently under development, a specific branch has been created for that
+\[3\] : Support for MCF is currently under development, a specific branch has been created for that
 
 \[4\] : Although the connector has been fully tested with Capella 1.3.x only, it might work with other major versions of Capella (if it doesn't, please let us known and open an [issue](https://github.com/open-mbee/mms-capella/issues))

@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+
+    working_directory: ~/mms-capella
+
+    docker:
+      - image: circleci/openjdk:11-jdk-stretch
+
+    steps:
+      - checkout
+      - run: mvn clean package
