@@ -17,17 +17,10 @@ This connector integrates the Open Source [Capella](https://www.eclipse.org/cape
 
 ![MMS Connector](docs/mms-connector-capella.png)
 
-## Installation Guide
+## Documentation
 
-The installation guide can be found [here](docs/installation-guide.md).
+See [Wiki](https://github.com/labs4capella/mms-capella/wiki).
 
-## User Quick Start Guide
-
-The user guide is provided by this add-on and accessible directly within Capella (see menu **Help Content**).
-
-## Developer Quick Start Guide
-
-The developer guide can be found [here](docs/developer-guide.md#_prepare_eclipse_development_environment).
 
 ## References
 
