@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/labs4capella/mms-capella.svg?style=shield)](https://circleci.com/gh/labs4capella/mms-capella)
 ![GitHub](https://img.shields.io/github/license/labs4capella/mms-capella.svg?color=blue)
+[![YouTube](https://img.shields.io/badge/youtube-screencast-red?logo=youtube)](https://youtu.be/p2Ogy553-dU)
 
 <img align="right" width="160" height="110" src="docs/openmbee-capella.png" alt="OpenMBEE"/>
 
