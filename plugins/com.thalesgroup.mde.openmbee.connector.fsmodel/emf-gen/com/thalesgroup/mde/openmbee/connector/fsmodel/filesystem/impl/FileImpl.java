@@ -339,11 +339,11 @@ public class FileImpl extends MinimalEObjectImpl.Container implements File {
 		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
-		result.append(" (name: ");
+		result.append(" (name: "); //$NON-NLS-1$
 		result.append(name);
-		result.append(", path: ");
+		result.append(", path: "); //$NON-NLS-1$
 		result.append(path);
-		result.append(", content: ");
+		result.append(", content: "); //$NON-NLS-1$
 		result.append(content);
 		result.append(')');
 		return result.toString();

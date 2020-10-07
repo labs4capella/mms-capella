@@ -21,6 +21,7 @@ public class MMSRootDescriptor {
 	public List<MMSProjectDescriptor> projects = new ArrayList<>();
 	public List<MMSRefDescriptor> refs = new ArrayList<>();
 	public MMSDataDescriptor data;
+	public String token; // MMS4
 	public List<MMSModelElementDescriptor> elements = new ArrayList<>();
 	/**
 	 * In case of committing elements

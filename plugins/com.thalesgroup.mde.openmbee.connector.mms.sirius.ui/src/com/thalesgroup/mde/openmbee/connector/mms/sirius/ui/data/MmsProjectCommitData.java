@@ -25,11 +25,11 @@ public class MmsProjectCommitData extends MmsConnectionData {
 	public final boolean newProject;
 	
 	public MmsProjectCommitData(MmsConnectionData connectionData, String commitComment, String projectServerName, String projectId, boolean newProject) {
-		this(connectionData.serverUrl, connectionData.autData, connectionData.orgId, commitComment, newProject, projectServerName, projectId, null, null);
+		this(connectionData.serverUrl, connectionData.apiVersion, connectionData.autData, connectionData.orgId, commitComment, newProject, projectServerName, projectId, null, null);
 	}
 	
-	public MmsProjectCommitData(String serverUrl, String autData, String orgId, String commitComment, boolean newProject, String projectServerName, String projectId, String projectFeaturePrefix, String refId) {
-		super(serverUrl, autData, orgId);
+	public MmsProjectCommitData(String serverUrl, String apiVersion, String autData, String orgId, String commitComment, boolean newProject, String projectServerName, String projectId, String projectFeaturePrefix, String refId) {
+		super(serverUrl, apiVersion, autData, orgId);
 		this.commitComment = commitComment;
 		this.projectServerName = projectServerName;
 		this.projectId = projectId;
@@ -39,7 +39,8 @@ public class MmsProjectCommitData extends MmsConnectionData {
 	}
 	
 	public MmsProjectCommitData(MmsConnectionData connectionData, String commitComment, boolean newProject, MMSProjectDescriptor project, MMSRefDescriptor ref) {
-		this(connectionData.serverUrl, 
+		this(connectionData.serverUrl,
+				connectionData.apiVersion,
 				connectionData.autData, 
 				connectionData.orgId, 
 				commitComment, 

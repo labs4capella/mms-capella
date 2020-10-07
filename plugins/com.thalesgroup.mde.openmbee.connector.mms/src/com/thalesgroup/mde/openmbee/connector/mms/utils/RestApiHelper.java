@@ -36,13 +36,15 @@ public class RestApiHelper {
 	private final String baseUrl;
 	private String ticket;
 	private String autData;
-	
-	public RestApiHelper(String baseUrl, String ticket, String autData) {
+	private String apiPrefix;
+
+	public RestApiHelper(String baseUrl, String ticket, String autData, String apiPrefix) {
 		this.baseUrl = baseUrl;
 		//this.ticket = ticket;
 		this.autData = autData;
+		this.apiPrefix = apiPrefix;
 	}
-	
+
 	/**
 	 * Update the authentication data.
 	 * 
@@ -69,14 +71,14 @@ public class RestApiHelper {
 	
 	public Request preparePost(String urlPostfix, Object... params) {
 		String postfix = preparePostfix(urlPostfix, params);
-		Request get = Request.Post(baseUrl+postfix);
-		return addAuthHeader(get);
+		Request post = Request.Post(baseUrl+postfix);
+		return addAuthHeader(post);
 	}
 	
 	public DeleteRequestWithBody prepareDelete(String urlPostfix, Object... params) {
 		String postfix = preparePostfix(urlPostfix, params);
-		DeleteRequestWithBody get = DeleteRequestWithBody.Delete(baseUrl+postfix);
-		return addAuthHeader(get);
+		DeleteRequestWithBody delete = DeleteRequestWithBody.Delete(baseUrl+postfix);
+		return addAuthHeader(delete);
 	}
 	
 	/**
@@ -177,9 +179,14 @@ public class RestApiHelper {
 	private String preparePostfix(String urlPostfix, Object... params) {
 		String postfix = ""; //$NON-NLS-1$
 		if(urlPostfix != null && urlPostfix.length()>0) {
+
+			// MMS4 services API
+			urlPostfix = apiPrefix+urlPostfix;
+
 			if(!baseUrl.endsWith("/")) { //$NON-NLS-1$
 				urlPostfix = "/"+urlPostfix; //$NON-NLS-1$
 			}
+			
 			if(params != null && params.length > 0) {
 				postfix = String.format(urlPostfix, params);
 			} else {

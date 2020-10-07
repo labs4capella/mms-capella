@@ -70,7 +70,7 @@ public class SelectionBasedMmsCheckoutAction extends SelectionBasedAction {
 					dialog.run(true, true, new ImportRunnable(
 							new AtomicReference<ExecutionResult>(), 
 							new MmsProjectImportData(
-									new MmsConnectionData(server.url, server.autData, org.id), 
+									new MmsConnectionData(server.url, server.apiVersion, server.autData, org.id), 
 									project.id, ref.id, 
 									commit == null ? null : commit.id), 
 							project.clientSideName, m -> {

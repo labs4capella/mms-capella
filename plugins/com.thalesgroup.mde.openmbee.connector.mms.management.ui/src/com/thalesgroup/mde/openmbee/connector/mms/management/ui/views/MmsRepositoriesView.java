@@ -69,7 +69,7 @@ public class MmsRepositoriesView extends ViewPart {
 
 	protected void retrieveViewerData() {
 		MMSRepositoryViewRoot mmsRoot = new MMSRepositoryViewRoot();
-		mmsRoot.id = "root";
+		mmsRoot.id = "root"; //$NON-NLS-1$
 		viewerDataRoot = new MMSTreeParent(mmsRoot);
 		MMSServerDescriptor[] storedMMSServerDescriptors = MmsServerManagementUiPlugin.getInstance().getStoredMMSServerDescriptors();
 		if(storedMMSServerDescriptors != null) {

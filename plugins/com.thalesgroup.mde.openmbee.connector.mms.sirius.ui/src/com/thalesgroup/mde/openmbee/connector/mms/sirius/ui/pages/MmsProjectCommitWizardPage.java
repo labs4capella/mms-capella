@@ -104,7 +104,7 @@ public class MmsProjectCommitWizardPage extends ConnectMmsServerWizardPage {
 						projectDescriptor.clientSideName = projectDescriptor.name;
 					}
 					List<MMSRefDescriptor> refs = 
-							serverHelper.getBranches(projectDescriptor.id);
+							serverHelper.getBranches(projectDescriptor.orgId, projectDescriptor.id);
 					refSelector.setInput(refs);
 					refSelector.getCombo().setEnabled(true);
 				}
@@ -164,7 +164,7 @@ public class MmsProjectCommitWizardPage extends ConnectMmsServerWizardPage {
 
 	private void setGeneratedId(String projectName) {
 		String selectedOrgId = getSelectedDescriptorId(orgSelector);
-		String generatedProjectId = "";
+		String generatedProjectId = ""; //$NON-NLS-1$
 		if(projectName != null && !projectName.isEmpty() && selectedOrgId != null && !selectedOrgId.isEmpty()) {
 			if(serverHelper == null) {
 				generatedProjectId = projectName;

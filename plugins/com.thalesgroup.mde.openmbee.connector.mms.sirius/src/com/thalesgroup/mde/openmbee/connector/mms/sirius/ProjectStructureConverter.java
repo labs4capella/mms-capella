@@ -49,6 +49,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import com.thalesgroup.mde.openmbee.connector.fsmodel.filesystem.FilesystemPackage;
 import com.thalesgroup.mde.openmbee.connector.mms.data.MMSConstants;
 import com.thalesgroup.mde.openmbee.connector.mms.data.MMSModelElementDescriptor;
+import com.thalesgroup.mde.openmbee.connector.mms.data.MMSServerDescriptor;
 import com.thalesgroup.mde.openmbee.connector.mms.sirius.utils.ProjectAlreadyExistsException;
 import com.thalesgroup.mde.openmbee.connector.mms.sirius.utils.ProjectCreationException;
 import com.thalesgroup.mde.openmbee.connector.mms.utils.MMSServerHelper;
@@ -160,7 +161,8 @@ public class ProjectStructureConverter {
 		return convertedFiles;
 	}
 	
-	public Map<IResource, MMSModelElementDescriptor> toMMS(String projectId, String branchId, String featurePrefix, Collection<IFile> files) {
+	@SuppressWarnings("unchecked")
+	public Map<IResource, MMSModelElementDescriptor> toMMS(String baseUrl, String apiVersion, String autData, String projectId, String branchId, String featurePrefix, Collection<IFile> files) {
 		String fileNameFeatureId = featurePrefix+FILE_NAME;
 		String filePathFeatureId = featurePrefix+FILE_PATH;
 		String fileContentFeatureId = featurePrefix+FILE_CONTENT;
@@ -168,7 +170,7 @@ public class ProjectStructureConverter {
 		Stack<IResource> convertibles = new Stack<>();
 		Map<IResource, MMSModelElementDescriptor> convertedResources = new HashMap<>();
 		Map<String, MMSModelElementDescriptor> convertedResourcesForIDs = new HashMap<>();
-		MMSServerHelper mmsHelper = new MMSServerHelper(null, null);
+		MMSServerHelper mmsHelper = new MMSServerHelper(baseUrl, apiVersion, autData);
 		convertibles.addAll(files);
 		while(!convertibles.empty()) {
 			IResource current = convertibles.pop();
@@ -184,7 +186,7 @@ public class ProjectStructureConverter {
 				IContainer container = current.getParent();
 				if(container != null && container.getType() != IResource.ROOT) {
 					if(container.getType() == IResource.PROJECT) {
-						ownerId = projectId;
+						ownerId = MMSServerDescriptor.API_VERSION_4.contentEquals(apiVersion) ? "model" : projectId; //$NON-NLS-1$
 						// save the .project file if it exists
 						IFile projectDescriptorFile = ((IProject) container).getFile(".project"); //$NON-NLS-1$
 						if(projectDescriptorFile.exists()) {
@@ -231,12 +233,14 @@ public class ProjectStructureConverter {
 			current.msiDescriptor.emfNsUri = fileSystemNsUri;
 			if(!projectId.contentEquals(current.msiDescriptor.ownerId)) {
 				MMSModelElementDescriptor owner = convertedResourcesForIDs.get(current.msiDescriptor.ownerId);
-				Object resourceIds = owner.msiDescriptor.attributes.get("resourceIds"); //$NON-NLS-1$
-				if(resourceIds == null) {
-					resourceIds = new ArrayList<String>();
-					owner.msiDescriptor.attributes.put("resourceIds", resourceIds); //$NON-NLS-1$
+				if (owner != null) {
+					Object resourceIds = owner.msiDescriptor.attributes.get("resourceIds"); //$NON-NLS-1$
+					if(resourceIds == null) {
+						resourceIds = new ArrayList<String>();
+						owner.msiDescriptor.attributes.put("resourceIds", resourceIds); //$NON-NLS-1$
+					}
+					((ArrayList<String>)resourceIds).add(current.id);
 				}
-				((ArrayList<String>)resourceIds).add(current.id);
 			}
 		}
 		return convertedResources;

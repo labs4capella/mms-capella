@@ -103,7 +103,7 @@ public class SelectionBasedMmsDeleteAction extends SelectionBasedAction {
 		MMSIdentifiableDescriptor mmso = rem.getMmsObject();
 		boolean retVal = false;
 		if(mmso instanceof MMSRefDescriptor) {
-			retVal = rem.getServerHelper().removeBranch((MMSRefDescriptor) mmso);
+			retVal = rem.getServerHelper().removeBranch(((MMSProjectDescriptor) rem.getParent().getMmsObject()).id, (MMSRefDescriptor) mmso);
 		}
 		if(mmso instanceof MMSProjectDescriptor) {
 			retVal = rem.getServerHelper().removeProject((MMSProjectDescriptor) mmso);

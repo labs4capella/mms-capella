@@ -17,7 +17,7 @@ public class MmsProjectImportData extends MmsProjectConnectionData {
 	public final String commitId;
 
 	public MmsProjectImportData(MmsConnectionData connectionData, String projectId, String refId, String commitId) {
-		super(connectionData.serverUrl, connectionData.autData, connectionData.orgId, projectId, refId);
+		super(connectionData.serverUrl, connectionData.apiVersion, connectionData.autData, connectionData.orgId, projectId, refId);
 		this.commitId = commitId;
 	}
 

@@ -42,7 +42,7 @@ public class MMSModelElementDescriptor extends MMSIdentifiableDescriptor {
 	@Override
 	public String toString() {
 		return String.format("MMSModelElement:\r\n\t%s\r\n\t%s", //$NON-NLS-1$
-				String.join("\r\n\t", Arrays.stream(MMSModelElementDescriptor.class.getFields()).map(f -> {
+				String.join("\r\n\t", Arrays.stream(MMSModelElementDescriptor.class.getFields()).map(f -> { //$NON-NLS-1$
 					try {
 						return String.format("%s: %s", f.getName(), f.get(this)); //$NON-NLS-1$
 					} catch (IllegalArgumentException | IllegalAccessException e) {}
@@ -187,8 +187,8 @@ public class MMSModelElementDescriptor extends MMSIdentifiableDescriptor {
 			
 		}
 	}
-	
-	public static class JsonTypeAdapter implements JsonDeserializer<MMSModelElementDescriptor>, JsonSerializer<MMSModelElementDescriptor> {
+
+	public static class JsonMMS3TypeAdapter implements JsonDeserializer<MMSModelElementDescriptor>, JsonSerializer<MMSModelElementDescriptor> {
 
 		private static final Gson gson = new GsonBuilder()
 											.registerTypeAdapter(MMSMSInfoDescriptor.class, new MMSMSInfoDescriptor.ComplexTypeInfoJsonTypeAdapter())
@@ -214,6 +214,36 @@ public class MMSModelElementDescriptor extends MMSIdentifiableDescriptor {
 					serialized.add(attribute.getKey(), gson.toJsonTree(attribute.getValue()));
 				}
 			}
+			return serialized;
+		}
+	}
+
+	public static class JsonMMS4TypeAdapter implements JsonDeserializer<MMSModelElementDescriptor>, JsonSerializer<MMSModelElementDescriptor> {
+
+		private static final Gson gson = new GsonBuilder()
+											.registerTypeAdapter(MMSMSInfoDescriptor.class, new MMSMSInfoDescriptor.ComplexTypeInfoJsonTypeAdapter())
+											.create();
+
+		@Override
+		public MMSModelElementDescriptor deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			return gson.fromJson(json, MMSModelElementDescriptor.class);
+		}
+
+		@Override
+		public JsonElement serialize(MMSModelElementDescriptor desc, Type type, JsonSerializationContext context) {
+			JsonObject serialized = gson.toJsonTree(desc.vcsiDescriptor, MMSVCSInfoDescriptior.class).getAsJsonObject();
+
+			serialized.remove("_inRefIds"); //$NON-NLS-1$
+			serialized.addProperty("id", desc.msiDescriptor.id); //$NON-NLS-1$
+			String name = (String) desc.msiDescriptor.attributes.get("EMF_FEATURE__name"); //$NON-NLS-1$
+			serialized.addProperty("name", name != null ? name : ""); //$NON-NLS-1$ //$NON-NLS-2$
+			String description = (String) desc.msiDescriptor.attributes.get("EMF_FEATURE__description"); //$NON-NLS-1$
+			serialized.addProperty("documentation", description != null ? description : ""); //$NON-NLS-1$ //$NON-NLS-2$
+			serialized.addProperty("type", desc.msiDescriptor.type); //$NON-NLS-1$
+			JsonObject msinfo = gson.toJsonTree(desc.msiDescriptor, MMSMSInfoDescriptor.class).getAsJsonObject();
+			serialized.add("custom", msinfo); //$NON-NLS-1$
+			serialized.addProperty("parent", desc.msiDescriptor.ownerId); //$NON-NLS-1$
+
 			return serialized;
 		}
 	}

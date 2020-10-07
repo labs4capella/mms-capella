@@ -96,7 +96,7 @@ public class MmsProjectVersionSelectionWizardPage extends ConnectMmsServerWizard
 						projectDescriptor.clientSideName = projectDescriptor.name;
 					}
 					List<MMSRefDescriptor> refs = 
-							serverHelper.getBranches(projectDescriptor.id);
+							serverHelper.getBranches(projectDescriptor.orgId, projectDescriptor.id);
 					refSelector.setInput(refs);
 					refSelector.getCombo().setEnabled(true);
 					commitSelector.getCombo().setEnabled(false);
@@ -104,7 +104,7 @@ public class MmsProjectVersionSelectionWizardPage extends ConnectMmsServerWizard
 					String message;
 					if(alreadyExistsInWorkspace(projectDescriptor.clientSideName)) {
 						newProjectName = projectDescriptor.clientSideName; //generateUniqueName(projectDescriptor.clientSideName);
-						message = null; //"Project name collison detected and the recommended name is automatically set to a unique one.";
+						message = null; //"Project name collision detected and the recommended name is automatically set to a unique one.";
 					} else {
 						newProjectName = projectDescriptor.clientSideName;
 						message = null;
@@ -127,6 +127,7 @@ public class MmsProjectVersionSelectionWizardPage extends ConnectMmsServerWizard
 				Object selectedRef = getSelectedElement(refSelector);
 				if(selectedProject instanceof MMSProjectDescriptor && selectedRef instanceof MMSRefDescriptor) {
 					List<MMSCommitDescriptor> commits = serverHelper.getCommits(
+																		((MMSProjectDescriptor)selectedProject).orgId, 
 																		((MMSProjectDescriptor)selectedProject).id, 
 																		((MMSRefDescriptor)selectedRef).id);
 					commitSelector.setInput(commits);

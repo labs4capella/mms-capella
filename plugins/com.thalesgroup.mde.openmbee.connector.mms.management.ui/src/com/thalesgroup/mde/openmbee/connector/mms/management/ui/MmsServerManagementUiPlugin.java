@@ -56,7 +56,7 @@ public class MmsServerManagementUiPlugin extends AbstractUIPlugin {
 	
 	public MMSServerDescriptor[] getStoredMMSServerDescriptors() {
 		try(StringReader stringReader = new StringReader(getStoredServerDataString())) {
-			return MMSJsonHelper.getPreparedGsonBuilder().create().fromJson(stringReader, MMSServerDescriptor[].class);
+			return MMSJsonHelper.getMMS3PreparedGsonBuilder().create().fromJson(stringReader, MMSServerDescriptor[].class);
 		} catch (Exception e) {
 			logHelper.error(e);
 		}
@@ -65,14 +65,14 @@ public class MmsServerManagementUiPlugin extends AbstractUIPlugin {
 	
 	public void addStoredMMSServerDescriptor(MMSServerDescriptor serverDescriptor) {
 		try(StringReader stringReader = new StringReader(getStoredServerDataString())) {
-			MMSServerDescriptor[] fromJson = MMSJsonHelper.getPreparedGsonBuilder().create().fromJson(stringReader, MMSServerDescriptor[].class);
+			MMSServerDescriptor[] fromJson = MMSJsonHelper.getMMS3PreparedGsonBuilder().create().fromJson(stringReader, MMSServerDescriptor[].class);
 			Set<MMSServerDescriptor> existingOnes = new HashSet<>();
 			if(fromJson != null && fromJson.length > 0) {
 				existingOnes.addAll(Arrays.asList(fromJson));
 			}
 			if(!existingOnes.contains(serverDescriptor)) {
 				if(existingOnes.add(serverDescriptor)) {
-					SecurePreferencesFactory.getDefault().node(PLUGIN_ID).put(PREFERENCES_MMS_SERVERDATA, MMSJsonHelper.getPreparedGsonBuilder().create().toJson(existingOnes), true);
+					SecurePreferencesFactory.getDefault().node(PLUGIN_ID).put(PREFERENCES_MMS_SERVERDATA, MMSJsonHelper.getMMS3PreparedGsonBuilder().create().toJson(existingOnes), true);
 				}
 			}
 		} catch (StorageException e) {
@@ -82,14 +82,14 @@ public class MmsServerManagementUiPlugin extends AbstractUIPlugin {
 	
 	public void removeStoredMMSServerDescriptor(MMSServerDescriptor serverDescriptor) {
 		try(StringReader stringReader = new StringReader(getStoredServerDataString())) {
-			MMSServerDescriptor[] fromJson = MMSJsonHelper.getPreparedGsonBuilder().create().fromJson(stringReader, MMSServerDescriptor[].class);
+			MMSServerDescriptor[] fromJson = MMSJsonHelper.getMMS3PreparedGsonBuilder().create().fromJson(stringReader, MMSServerDescriptor[].class);
 			Set<MMSServerDescriptor> existingOnes = new HashSet<>();
 			if(fromJson != null && fromJson.length > 0) {
 				existingOnes.addAll(Arrays.asList(fromJson));
 			}
 			Optional<MMSServerDescriptor> removable = existingOnes.stream().filter(s -> serverDescriptor.id.contentEquals(s.id)).findFirst();
 			if(removable.isPresent() && existingOnes.remove(removable.get())) {
-				SecurePreferencesFactory.getDefault().node(PLUGIN_ID).put(PREFERENCES_MMS_SERVERDATA, MMSJsonHelper.getPreparedGsonBuilder().create().toJson(existingOnes), true);
+				SecurePreferencesFactory.getDefault().node(PLUGIN_ID).put(PREFERENCES_MMS_SERVERDATA, MMSJsonHelper.getMMS3PreparedGsonBuilder().create().toJson(existingOnes), true);
 			}
 		} catch (StorageException e) {
 			logHelper.error(e);
@@ -99,10 +99,10 @@ public class MmsServerManagementUiPlugin extends AbstractUIPlugin {
 	private String getStoredServerDataString() {
 		String storedServerDataString = null;
 		try {
-			storedServerDataString = SecurePreferencesFactory.getDefault().node(PLUGIN_ID).get(PREFERENCES_MMS_SERVERDATA, "[]");
+			storedServerDataString = SecurePreferencesFactory.getDefault().node(PLUGIN_ID).get(PREFERENCES_MMS_SERVERDATA, "[]"); //$NON-NLS-1$
 		} catch (StorageException e1) {}
 		if(storedServerDataString == null) {
-			storedServerDataString = "[]";
+			storedServerDataString = "[]"; //$NON-NLS-1$
 		}
 		return storedServerDataString;
 	}

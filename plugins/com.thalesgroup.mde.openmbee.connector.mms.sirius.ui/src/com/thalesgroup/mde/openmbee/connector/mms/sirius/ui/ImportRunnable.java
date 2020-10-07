@@ -88,8 +88,10 @@ public class ImportRunnable implements IRunnableWithProgress {
 			try {
 				SiriusProjectConnector projectConnector = new SiriusProjectConnector();
 				monitor.beginTask("Import from MMS", projectConnector.getNumberOfSubTaskOfFromMms()); //$NON-NLS-1$
-				success = projectConnector.fromMms(connectionData.serverUrl, 
-													connectionData.autData, 
+				success = projectConnector.fromMms(connectionData.serverUrl,
+													connectionData.apiVersion,
+													connectionData.autData,
+													connectionData.orgId,
 													connectionData.projectId, 
 													connectionData.refId,
 													connectionData.commitId,

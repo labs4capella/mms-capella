@@ -109,7 +109,7 @@ public class ConnectMmsServerWizardPage extends WizardPage {
 	}
 
 	protected void loadOrganizationsIntoComboViewer() {
-		serverHelper = new MMSServerHelper(container.getUrl(), getConnectionData().autData);
+		serverHelper = new MMSServerHelper(container.getUrl(), container.getAPIVersion(), getConnectionData().autData);
 		List<MMSOrganizationDescriptor> orgs = serverHelper.getOrgs();
 		if(orgs != null && orgs.size()>0) {
 			orgSelector.setInput(orgs);
@@ -199,7 +199,7 @@ public class ConnectMmsServerWizardPage extends WizardPage {
 		String userpasswd = String.format(TEMPLATE_USERPASSWD, container.getUser(), container.getPassword());
 		String autData = String.format(TEMPLATE_BASICAUTDATA, Base64.getEncoder().encodeToString(userpasswd.getBytes()));
 		String orgId = getSelectedDescriptorId(orgSelector);
-		return new MmsConnectionData(container.getUrl(), autData, orgId);
+		return new MmsConnectionData(container.getUrl(), container.getAPIVersion(), autData, orgId);
 	}
 	
 	public String getUser() {
